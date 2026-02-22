@@ -1,0 +1,35 @@
+/* ─── CHAT BOX ──────────────────────────────────────────── */
+.chat-box {
+  width: 100%;
+  flex: 1;
+  min-height: 600px;
+  max-height: 62vh;
+  overflow-y: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-xl);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.04);
+  scroll-behavior: smooth;
+  transition: var(--transition);
+}
+
+/* Scrollbar */
+.chat-box::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-box::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 4px;
+}
+.chat-box::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}

@@ -1,0 +1,216 @@
+/* ─── MESSAGES ──────────────────────────────────────────── */
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 82%;
+  animation: msgIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes msgIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message.bot {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.message.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+/* Sender label */
+.message strong {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 0 4px;
+}
+
+.message.bot strong { color: var(--text-bot-name); }
+.message.user strong { color: var(--text-user-name); }
+
+/* Message bubble */
+.message-body {
+  background: var(--bg-message-bot);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 13px 17px;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+  position: relative;
+  word-break: break-word;
+  transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+.message-body p {
+  display: inline;
+}
+
+.message.bot .message-body {
+  border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
+  border-left: 2px solid var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.message.user .message-body {
+  background: var(--bg-message-user);
+  border-color: rgba(91, 143, 255, 0.2);
+  border-radius: var(--radius-md) 4px var(--radius-md) var(--radius-md);
+  border-right: 2px solid var(--accent-secondary);
+}
+
+/* Typing indicator */
+.message.bot.typing .message-body {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 60px;
+  padding: 14px 20px;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  animation: typingPulse 1.3s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingPulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%       { opacity: 1;    transform: scale(1); }
+}
+
+/* ─── TRANSLATE DROPDOWN ────────────────────────────────── */
+.message select {
+  margin-top: 4px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300f0d4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.message select:hover {
+  border-color: var(--border-bright);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.message select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-input);
+}
+
+.message select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+
+
+
+
+
+
+
+/* Markdown inside message */
+
+.message-body strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.message-body ul {
+  margin-left: 18px;
+  padding-left: 12px;
+}
+
+.message-body ol {
+  margin-left: 18px;
+  padding-left: 12px;
+}
+
+.message-body li {
+  margin-bottom: 4px;
+}
+
+.message-body code {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.message-body pre {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 10px 0;
+  border: 1px solid var(--border-dim);
+}
+
+.typing-cursor {
+  display: inline-block;
+  margin-left: 2px; 
+  width: 8px;
+  color: var(--accent-primary);
+  animation: blink 1s infinite;
+  vertical-align: baseline;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+/* Headings inside markdown */
+.message-body h1,
+.message-body h2,
+.message-body h3 {
+  margin: 10px 0 6px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  letter-spacing: -0.01em;
+}
+
+.message-body p {
+  margin-bottom: 6px;
+}
