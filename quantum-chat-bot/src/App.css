@@ -6,80 +6,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
 /* ─── CSS VARIABLES ─────────────────────────────────────── */
-:root {
-  /* Dark Mode (default) */
-  --bg-base:         #04060f;
-  --bg-surface:      #080d1c;
-  --bg-glass:        rgba(10, 16, 35, 0.72);
-  --bg-message-bot:  rgba(14, 24, 52, 0.85);
-  --bg-message-user: rgba(2, 120, 110, 0.18);
-  --bg-input:        rgba(12, 20, 42, 0.9);
-  --bg-modal:        rgba(6, 10, 26, 0.97);
-
-  --accent-primary:  #00f0d4;
-  --accent-glow:     rgba(0, 240, 212, 0.22);
-  --accent-secondary:#5b8fff;
-  --accent-pulse:    rgba(91, 143, 255, 0.18);
-
-  --text-primary:    #e8f0ff;
-  --text-secondary:  #7b90c4;
-  --text-muted:      #3a4a72;
-  --text-bot-name:   #00f0d4;
-  --text-user-name:  #5b8fff;
-
-  --border-dim:      rgba(0, 240, 212, 0.1);
-  --border-bright:   rgba(0, 240, 212, 0.35);
-  --border-input:    rgba(91, 143, 255, 0.3);
-
-  --shadow-card:     0 8px 40px rgba(0, 10, 40, 0.7);
-  --shadow-glow:     0 0 24px rgba(0, 240, 212, 0.15);
-  --shadow-input:    0 0 0 3px rgba(91, 143, 255, 0.15);
-
-  --radius-sm:       8px;
-  --radius-md:       14px;
-  --radius-lg:       22px;
-  --radius-xl:       32px;
-
-  --font-display:    'Syne', sans-serif;
-  --font-mono:       'JetBrains Mono', monospace;
-
-  --transition:      all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: all 0.15s ease;
-}
-
-/* Light Mode */
-[data-theme="light"] {
-  --bg-base:         #f0f4ff;
-  --bg-surface:      #ffffff;
-  --bg-glass:        rgba(255, 255, 255, 0.85);
-  --bg-message-bot:  rgba(235, 240, 255, 0.95);
-  --bg-message-user: rgba(0, 180, 160, 0.1);
-  --bg-input:        rgba(240, 245, 255, 0.95);
-  --bg-modal:        rgba(248, 250, 255, 0.98);
-
-  --accent-primary:  #0098a6;
-  --accent-glow:     rgba(0, 152, 166, 0.15);
-  --accent-secondary:#3a6ff7;
-  --accent-pulse:    rgba(58, 111, 247, 0.12);
-
-  --text-primary:    #0a1228;
-  --text-secondary:  #3a4f7a;
-  --text-muted:      #8a9dc4;
-  --text-bot-name:   #007a85;
-  --text-user-name:  #2b55d4;
-
-  --border-dim:      rgba(0, 152, 166, 0.15);
-  --border-bright:   rgba(0, 152, 166, 0.4);
-  --border-input:    rgba(58, 111, 247, 0.25);
-
-  --shadow-card:     0 8px 32px rgba(10, 20, 80, 0.1);
-  --shadow-glow:     0 0 20px rgba(0, 152, 166, 0.12);
-  --shadow-input:    0 0 0 3px rgba(58, 111, 247, 0.12);
-}
-
-
-
-
 
 /* ============================================================
    QUBOT — PALETTE OVERRIDE
@@ -89,7 +15,7 @@
 
 :root {
   /* ── DARK MODE ── */
-  --bg-base:          #060407;           /* absolute jet black, faint violet undertone */
+  --bg-base:          rgb(239, 192, 255);           /* absolute jet black, faint violet undertone */
   --bg-surface:       #0e080f;           /* deep royal black */
   --bg-glass:         rgba(20, 8, 22, 0.75);
   --bg-message-bot:   rgba(32, 8, 36, 0.90);
@@ -126,11 +52,14 @@
 
   --transition:       all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast:  all 0.15s ease;
+  
+  /* Sidebar width */
+  --sidebar-width: 300px;
 }
 
 /* ── LIGHT MODE ── */
 [data-theme="light"] {
-  --bg-base:          #faf5ff;           /* pale royal lavender */
+  --bg-base:          rgb(30, 1, 36);           /* pale royal lavender */
   --bg-surface:       #ffffff;
   --bg-glass:         rgba(255, 248, 255, 0.88);
   --bg-message-bot:   rgba(250, 240, 255, 0.96);
@@ -157,12 +86,6 @@
   --shadow-glow:      0 0 20px rgba(181, 0, 46, 0.12);
   --shadow-input:     0 0 0 3px rgba(114, 9, 183, 0.13);
 }
-
-
-
-
-
-
 
 
 
@@ -227,13 +150,30 @@ body::after {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   min-height: 90vh;
-  padding: 32px 16px 24px;
   max-width: 1500px;
   margin: 0 auto;
+  transition: var(--transition);
+}
+
+/* Main content container that shrinks when sidebar opens */
+.main-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px 24px;
   gap: 20px;
+  transition: var(--transition);
+  width: 100%;
+  margin-left: 0;
+}
+
+/* When sidebar is expanded, main content shrinks to make room */
+.sidebar-expanded .main-content {
+  margin-right: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
 }
 
 /* ─── HEADER / TITLE ────────────────────────────────────── */
@@ -321,4 +261,112 @@ h1::after {
 
 [data-theme="light"] .toggle-thumb {
   transform: translateX(16px);
+}
+
+/* ─── CHAT WRAPPER ───────────────────────────── */
+.chat-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* ─── SAVE CHAT BUTTON ───────────────────────── */
+.save-chat-btn {
+  position: absolute;
+  top: 38px;
+  right: 200px;
+  align-self: flex-end;
+  margin-bottom: 10px;
+
+  padding: 10px 18px;
+  border-radius: var(--radius-lg);
+
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+
+  color: #fff;
+  border: 1px solid var(--border-bright);
+
+  cursor: pointer;
+  transition: var(--transition);
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 18px var(--accent-glow);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  z-index: 5;
+}
+
+/* Hover */
+.save-chat-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    0 0 28px var(--accent-glow);
+}
+
+/* Active */
+.save-chat-btn:active {
+  transform: scale(0.97);
+}
+
+/* Soft pulse effect */
+.save-chat-btn::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  opacity: 0.25;
+  filter: blur(12px);
+  z-index: -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar-expanded .main-content {
+    margin-right: 0;
+    width: 100%;
+  }
+  
+  .save-chat-btn {
+    align-self: center;
+  }
+}
+
+
+/* Add to App.css */
+
+.saved-badge {
+  position: absolute;
+  top: 38px;
+  right: 200px;
+  padding: 10px 18px;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--bg-glass);
+  border: 1px solid var(--accent-secondary);
+  color: var(--accent-secondary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 5;
+  box-shadow: var(--shadow-glow);
 }

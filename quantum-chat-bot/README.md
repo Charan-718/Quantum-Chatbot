@@ -1,70 +1,582 @@
-# Getting Started with Create React App
+# 🧠 QuBot — Quantum AI Assistant
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+QuBot is a full-stack AI chatbot designed for **quantum computing assistance**, supporting:
 
-## Available Scripts
+• Conversational chat and research modes  
+• Retrieval-Augmented Generation (RAG) via FastAPI backend  
+• Conversation history stored in MongoDB  
+• Multi-language translation with audio playback  
+• Session management and persistent chat history  
+• Modern React frontend  
 
-In the project directory, you can run:
+---
 
-### `npm start`
+# 🏗️ Architecture Overview
+Frontend (React)
+│
+├── Chat UI
+├── Translation Modal + Audio
+├── Theme & Mode Switching
+└── History Sidebar
+│
+├─────────────── HTTP ────────────────┐
+│ │
+History Server (Node + MongoDB) AI Backend (FastAPI)
+Port 5000 Port 8000
+│ │
+Stores conversations RAG pipeline
+Session history LLM generation
+Chat titles Vector database retrieval
+│ │
+Translation Server (Node)
+Port 5500
+│
+Google Translate API + gTTS
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+# 📂 Project Structure
+project/
+│
+├── frontend/ React App
+│ ├── src/components
+│ ├── App.jsx
+│ └── App.css
+│
+├── history-server/ MongoDB chat history server
+│ └── server.js
+│
+├── translation-server/ Translation + audio backend
+│ └── server.js
+│
+├── quantum-backend/ FastAPI RAG backend
+│ ├── api/
+│ ├── services/
+│ ├── scripts/
+│ └── requirements.txt
+│
+└── README.md
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# ⚙️ Prerequisites
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Install the following:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Required
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+• Node.js 18+  
+• Python 3.10+  
+• MongoDB  
 
-## Learn More
+## Optional but Recommended
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+• Redis  
+• PostgreSQL  
+• Ollama or HuggingFace API key  
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+# 🚀 Setup Guide
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+# 1️⃣ Frontend Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
 
-### Making a Progressive Web App
+cd frontend
+npm install
+npm start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
 
-### Advanced Configuration
+Runs at:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
 
-### Deployment
+http://localhost:3000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# 2️⃣ MongoDB History Server
+
+Stores chat sessions and messages.
+
+## Create `.env`
+
+```
+
+MONGO_URI=mongodb://127.0.0.1:27017/qubot
+
+```
+
+## Run server
+
+```
+
+node server.js
+
+```
+
+Runs at:
+
+```
+
+http://localhost:5000
+
+```
+
+---
+
+# 3️⃣ Translation + Audio Server
+
+Provides translation and speech.
+
+## Install
+
+```
+
+npm install express cors dotenv gtts
+
+```
+
+## Run
+
+```
+
+node server.js
+
+```
+
+Runs at:
+
+```
+
+http://localhost:5500
+
+```
+
+---
+
+# 4️⃣ FastAPI Quantum Backend (RAG + LLM)
+
+## Create virtual environment
+
+Windows:
+
+```
+
+python -m venv venv
+venv\Scripts\activate
+
+```
+
+Linux/Mac:
+
+```
+
+python -m venv venv
+source venv/bin/activate
+
+```
+
+---
+
+## Install dependencies
+
+```
+
+pip install -r requirements.txt
+
+```
+
+---
+
+## Configure environment
+
+Copy:
+
+```
+
+.env.example → .env
+
+```
+
+Set minimum:
+
+```
+
+ENABLE_AUTH=false
+
+CHROMA_PERSIST_DIR=./chroma
+
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+
+```
+
+Optional LLM provider:
+
+```
+
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+
+or
+
+HF_API_KEY=your_key
+
+```
+
+---
+
+## Initialize database
+
+```
+
+python scripts/setup_db.py
+python scripts/setup_chroma.py
+
+```
+
+---
+
+## Run backend
+
+```
+
+uvicorn api.main:app --reload
+
+```
+
+Runs at:
+
+```
+
+http://127.0.0.1:8000
+
+```
+
+Docs:
+
+```
+
+http://127.0.0.1:8000/docs
+
+```
+
+---
+
+# 🧪 Health Check
+
+```
+
+http://127.0.0.1:8000/health
+
+```
+
+Expected:
+
+```
+
+{
+status: "healthy"
+}
+
+```
+
+---
+
+# 💬 Chat API Endpoint
+
+```
+
+POST /api/chat/message
+
+```
+
+Example:
+
+```
+
+{
+"message": "Explain Bell State",
+"detail_level": "beginner",
+"client_context": {
+"client_type": "website"
+}
+}
+
+```
+
+Response:
+
+```
+
+{
+"reply": "Bell state is..."
+}
+
+```
+
+---
+
+# 🌍 Translation Endpoint
+
+```
+
+POST http://localhost:5500/translate-audio
+
+```
+
+Body:
+
+```
+
+{
+"text": "Hello",
+"language": "Hindi"
+}
+
+```
+
+Response:
+
+```
+
+{
+"translatedText": "नमस्ते",
+"audio": "base64..."
+}
+
+```
+
+---
+
+# 🧠 Features
+
+## Chat Modes
+
+Chat Mode  
+General assistance
+
+Research Mode  
+Advanced technical responses
+
+---
+
+## RAG Pipeline
+
+Embedding generation  
+Vector search (ChromaDB)  
+Context retrieval  
+LLM response generation  
+
+---
+
+## Chat History
+
+Stored in MongoDB
+
+Supports:
+
+• Save conversations  
+• Load previous chats  
+• Auto-delete after 30 days  
+
+---
+
+## Translation + Audio
+
+Supports:
+
+English  
+Hindi  
+Spanish  
+French  
+German  
+Italian  
+Portuguese  
+Russian  
+Arabic  
+Japanese  
+Korean  
+
+---
+
+## UI Features
+
+Dark / Light theme  
+Language modal  
+Audio playback  
+Session switching  
+History sidebar  
+
+---
+
+# 🖥️ Ports Used
+
+| Service | Port |
+|--------|------|
+Frontend | 3000
+History Server | 5000
+Translation Server | 5500
+FastAPI Backend | 8000
+MongoDB | 27017
+
+---
+
+# ▶️ Full Startup Order
+
+Start in this order:
+
+```
+
+MongoDB
+
+History Server
+
+node server.js
+
+Translation Server
+
+node server.js
+
+FastAPI backend
+
+uvicorn api.main:app --reload
+
+Frontend
+
+npm start
+
+```
+
+---
+
+# 🧯 Troubleshooting
+
+## Backend not responding
+
+Check:
+
+```
+
+http://127.0.0.1:8000/health
+
+```
+
+---
+
+## MongoDB error
+
+Start MongoDB:
+
+```
+
+mongod
+
+```
+
+---
+
+## Translation fails
+
+Ensure port 5500 running
+
+---
+
+## Chat history not saving
+
+Check MongoDB connection string
+
+---
+
+# 📌 Tech Stack
+
+Frontend  
+React  
+CSS  
+
+Backend AI  
+FastAPI  
+LangChain  
+ChromaDB  
+Transformers  
+
+History  
+Node.js  
+MongoDB  
+
+Translation  
+Google Translate API  
+gTTS  
+
+---
+
+# 👨‍💻 Developer Notes
+
+Main chatbot endpoint:
+
+```
+
+/api/chat/message
+
+```
+
+Frontend integration:
+
+```
+
+App.jsx → sendQuestion()
+
+```
+
+History integration:
+
+```
+
+history server → MongoDB
+
+```
+
+Translation integration:
+
+```
+
+LanguageModal → translate-audio endpoint
+
+```
+
+---
+
+# ✅ Project Status
+
+Fully functional:
+
+Chat  
+RAG backend  
+Translation  
+Audio playback  
+History persistence  
+Theme switching  
+
+---
+
+# 📜 License
+
+MIT License
+
+```
+
+---
+
+If you'd like, I can also generate a **production-grade README with diagrams and deployment instructions (Docker + Nginx + VPS)**.

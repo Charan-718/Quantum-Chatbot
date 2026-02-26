@@ -138,13 +138,6 @@
   color: var(--text-primary);
 }
 
-
-
-
-
-
-
-
 /* Markdown inside message */
 
 .message-body strong {
@@ -213,4 +206,241 @@
 
 .message-body p {
   margin-bottom: 6px;
+}
+
+
+
+/* KaTeX math styling */
+.math-inline {
+  font-size: 1.1em;
+}
+
+.katex {
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+
+.katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+}
+
+/* For displayed equations (with \[ \] or $$ $$) */
+.message-body .katex-display {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1em;
+  border: 1px solid var(--border-dim);
+}
+
+/* For inline equations (with \( \)) */
+.message-body .katex {
+  color: var(--accent-secondary);
+}
+
+/* Ensure math expressions don't break layout */
+.message-body .math-inline {
+  white-space: nowrap;
+}
+
+/* Responsive math */
+@media (max-width: 768px) {
+  .katex-display {
+    font-size: 0.9em;
+  }
+  
+  .message-body .katex-display {
+    padding: 0.75em;
+  }
+}
+
+
+
+
+
+/* ─── MESSAGE FOOTER ───────────────────────────────────── */
+.message-footer {
+  display: flex;
+  /* align-items: center; */
+  justify-content: space-between !important;
+  gap: 8px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+/* Update existing language selector */
+.language-selector {
+  width: 200px;
+}
+
+.message select {
+  margin-top: 0; /* Remove margin-top since it's in the footer */
+  width: 100%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23e8003d'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.message select:hover {
+  border-color: var(--border-bright);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.message select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-input);
+}
+
+.message select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* ─── COPY BUTTON ──────────────────────────────────────── */
+.copy-button-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.copy-button {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-dim);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.copy-button:hover {
+  border-color: var(--border-bright);
+  color: var(--accent-primary);
+  background: var(--accent-glow);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-glow);
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+}
+
+.copy-button.success {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border-color: transparent;
+}
+
+/* Copy tooltip */
+.copy-tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltipFade 0.2s ease;
+  box-shadow: var(--shadow-glow);
+  z-index: 10;
+}
+
+.copy-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--accent-secondary);
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Adjust for user messages (if you want copy for user messages too) */
+.message.user .message-footer {
+  justify-content: flex-end;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .message-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .copy-button-container {
+    align-self: flex-end;
+  }
+  
+  .copy-tooltip {
+    top: -25px;
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+}
+
+/* For bot messages alignment */
+.message.bot .message-footer {
+  justify-content: flex-start;
+}
+
+/* Pulse animation for success state */
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(232, 0, 61, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(232, 0, 61, 0);
+  }
+}
+
+.copy-button.success {
+  animation: successPulse 1s ease;
 }

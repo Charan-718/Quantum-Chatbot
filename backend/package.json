@@ -10,10 +10,17 @@
     "@google/generative-ai": "^0.17.1",
     "body-parser": "^1.20.2",
     "buffer": "^6.0.3",
+    "chromadb": "^3.3.1",
     "cors": "^2.8.6",
-    "dotenv": "^16.4.0",
-    "express": "^4.18.2",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
     "gtts": "^0.2.1",
+    "mongoose": "^9.2.2",
+    "openai": "^6.24.0",
     "stream": "^0.0.3"
-  }
+  },
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
