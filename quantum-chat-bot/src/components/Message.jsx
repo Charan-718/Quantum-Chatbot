@@ -6,7 +6,7 @@ import "katex/dist/katex.min.css";
 import "./Message.css";
 
 const LANGUAGES = [
-  "English", "Hindi", "Spanish", "French", "German",
+  "English", "Hindi", "Telugu", "Spanish", "French", "German",
   "Italian", "Portuguese", "Russian", "Arabic", "Japanese", "Korean"
 ];
 

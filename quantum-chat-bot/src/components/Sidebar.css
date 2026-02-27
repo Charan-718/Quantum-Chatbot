@@ -197,7 +197,7 @@
 .empty-history {
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: var(--bg-base);
   text-align: center;
   padding: 40px 20px;
   letter-spacing: 0.06em;

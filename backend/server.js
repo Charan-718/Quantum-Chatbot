@@ -22,6 +22,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const SUPPORTED_LANGUAGES = {
   English: "en",
   Hindi: "hi",
+  Telugu: "te",
   Spanish: "es",
   French: "fr",
   German: "de",
@@ -94,6 +95,13 @@ app.post("/translate-audio", async (req, res) => {
     }
 
     // 🔊 Generate Audio
+    if (langCode === "te") {
+      return res.json({
+        translatedText,
+        audio: null,
+        note: "Audio not supported for Telugu in gTTS"
+      });
+    }
     const tts = new gTTS(translatedText, langCode);
     const chunks = [];
 

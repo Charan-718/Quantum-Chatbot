@@ -210,21 +210,27 @@
 .top-right {
   top: 120px;
   right: 120px;
-  animation: cardTimeline 6.5s ease forwards;
+  animation: leftCardTimeline 6.5s ease forwards;
   animation-delay: 1.5s;
 }
 
 .bottom-left {
   bottom: 120px;
   left: 120px;
-  animation: cardTimeline 4.5s ease forwards;
+  animation: rightCardTimeline 4.5s ease forwards;
   animation-delay: 3.5s;
 }
 
 /* ─── ANIMATION (unchanged) ──────────────────────────────── */
-@keyframes cardTimeline {
+@keyframes leftCardTimeline {
   0%   { opacity: 0; transform: translateY(0px);  }
-  15%  { opacity: 1; transform: translateY(0);    }
-  85%  { opacity: 1; transform: translateY(0);    }
+  15%  { opacity: 1; transform: translateY(0) perspective(800px) rotateY(-15deg) rotateX(-15deg);    }
+  85%  { opacity: 1; transform: translateY(0) perspective(800px) rotateY(-25deg) rotateX(-25deg);    }
+  100% { opacity: 0; transform: translateY(-0px); }
+}
+@keyframes rightCardTimeline {
+  0%   { opacity: 0; transform: translateY(0px);  }
+  15%  { opacity: 1; transform: translateY(0) perspective(800px) rotateY(15deg) rotateX(15deg);    }
+  85%  { opacity: 1; transform: translateY(0) perspective(800px) rotateY(25deg) rotateX(25deg);    }
   100% { opacity: 0; transform: translateY(-0px); }
 }
