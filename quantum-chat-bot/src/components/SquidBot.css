@@ -133,8 +133,7 @@
   }
 }
 
-/* Floating Cards */
-
+/* ─── FLOATING CARDS ─────────────────────────────────────── */
 .floating-card {
   position: absolute;
   min-width: 360px;
@@ -142,41 +141,72 @@
   padding: 22px 26px;
   border-radius: 22px;
 
-  background: linear-gradient(
-    135deg,
-    rgba(255,255,255,0.25),
-    rgba(255,255,255,0.10)
-  );
+  /* Layered warm-white glass tinted to match the pink-mist bg */
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 248, 250, 0.55) 0%,
+      rgba(255, 235, 240, 0.30) 50%,
+      rgba(240, 230, 245, 0.20) 100%
+    );
 
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.72);
 
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  /* Heavy blur + saturation = rich frosted glass */
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.08);
 
   box-shadow:
-    0 8px 40px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.5);
+    0 12px 48px rgba(80, 0, 30, 0.14),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.82),
+    inset 1px 0   0 rgba(255, 255, 255, 0.52),
+    inset 0 0 40px rgba(220, 80, 120, 0.06);
 
   z-index: 15;
   opacity: 0;
+  isolation: isolate;
 }
 
+/* Grain texture for premium frosted feel */
+.floating-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.07;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 0;
+}
+
+/* Keep content above grain layer */
+.floating-card h4,
+.floating-card p {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── TITLE — dark maroon ────────────────────────────────── */
 .floating-card h4 {
   margin-bottom: 10px;
   font-size: var(--font-lg);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--accent-primary);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #3d0018;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
+/* ─── BODY — dark navy blue ──────────────────────────────── */
 .floating-card p {
   font-size: var(--font-md);
   line-height: calc(var(--font-md) * 1.618);
-  color: var(--text-secondary);
+  color: #0f1f3d;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-/* Positions */
-
+/* ─── POSITIONS (unchanged) ──────────────────────────────── */
 .top-right {
   top: 120px;
   right: 120px;
@@ -188,32 +218,13 @@
   bottom: 120px;
   left: 120px;
   animation: cardTimeline 4.5s ease forwards;
-  animation-delay: 3.5s; /* Slight stagger */
+  animation-delay: 3.5s;
 }
-/* Animation */
+
+/* ─── ANIMATION (unchanged) ──────────────────────────────── */
 @keyframes cardTimeline {
-
-  /* Hidden initially */
-  0% {
-    opacity: 0;
-    transform: translateY(0px);
-  }
-
-  /* Fade in quickly */
-  15% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* Stay visible */
-  85% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* Fade out */
-  100% {
-    opacity: 0;
-    transform: translateY(-0px);
-  }
+  0%   { opacity: 0; transform: translateY(0px);  }
+  15%  { opacity: 1; transform: translateY(0);    }
+  85%  { opacity: 1; transform: translateY(0);    }
+  100% { opacity: 0; transform: translateY(-0px); }
 }
