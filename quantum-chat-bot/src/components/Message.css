@@ -208,8 +208,6 @@
   margin-bottom: 6px;
 }
 
-
-
 /* KaTeX math styling */
 .math-inline {
   font-size: 1.1em;
@@ -256,10 +254,6 @@
     padding: 0.75em;
   }
 }
-
-
-
-
 
 /* ─── MESSAGE FOOTER ───────────────────────────────────── */
 .message-footer {
@@ -444,10 +438,6 @@
 .copy-button.success {
   animation: successPulse 1s ease;
 }
-
-
-
-
 
 /* KaTeX math styling */
 .math-inline {

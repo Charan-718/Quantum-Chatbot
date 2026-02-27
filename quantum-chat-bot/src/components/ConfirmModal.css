@@ -1,7 +1,6 @@
 /* =========================================
    MODE SWITCH CONFIRM MODAL
 ========================================= */
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -15,7 +14,6 @@
   -webkit-backdrop-filter: blur(10px);
   animation: fadeIn 0.2s ease;
 }
-
 
 .modal-content {
   width: 100%;
@@ -31,9 +29,7 @@
   animation: scaleIn 0.25s ease;
 }
 
-
 /* TITLE */
-
 .modal-content h3 {
   margin-bottom: 22px;
   font-size: 18px;
@@ -42,9 +38,7 @@
   line-height: 1.5;
 }
 
-
 /* BUTTON CONTAINER */
-
 .modal-content button {
   width: 100%;
   padding: 12px;
@@ -57,9 +51,7 @@
   transition: all 0.2s ease;
 }
 
-
 /* SAVE BUTTON */
-
 .modal-content button:first-of-type {
   background: linear-gradient(
     135deg,
@@ -74,9 +66,7 @@
   box-shadow: 0 6px 18px rgba(0,224,198,0.3);
 }
 
-
 /* DISCARD BUTTON */
-
 .modal-content button:last-of-type {
   background: rgba(255,255,255,0.08);
   color: white;
@@ -89,7 +79,6 @@
 
 
 /* ANIMATION */
-
 @keyframes fadeIn {
 
   from { opacity: 0; }

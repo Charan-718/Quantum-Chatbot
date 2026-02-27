@@ -6,7 +6,11 @@ function Header({
   toggleTheme,
   mode,
   requestModeChange,
-  showContent // Add this prop
+  showContent,
+  selectedLanguage,
+  onLanguageChange,
+  isTranslating,
+  languages
 }) {
   const [animateLogo, setAnimateLogo] = useState(false);
 
@@ -36,6 +40,19 @@ function Header({
 
       <div className="mode-toggle">
 
+
+        <button
+          className="theme-toggle"
+          onClick={toggleTheme}
+        >
+          <div className="toggle-track">
+            <div className="toggle-thumb"/>
+          </div>
+
+          {theme === "dark" ? "Light Mode" : "Dark Mode"}
+
+        </button>
+
         <button
           className={mode === "chat" ? "active" : ""}
           onClick={() => requestModeChange("chat")}
@@ -43,26 +60,41 @@ function Header({
           Chat Mode
         </button>
 
-        <button
+        {/* <button
           className={mode === "research" ? "active" : ""}
           onClick={() => requestModeChange("research")}
         >
           Research Mode
-        </button>
+        </button> */}
 
       </div>
 
-      <button
-        className="theme-toggle"
-        onClick={toggleTheme}
-      >
-        <div className="toggle-track">
-          <div className="toggle-thumb"/>
+      {/* Universal Language Dropdown */}
+      <div className="language-bar">
+        <div className="language-selector-wrapper">
+          <label htmlFor="universal-language">🌐</label>
+          <select
+            id="universal-language"
+            value={selectedLanguage}
+            onChange={(e) => onLanguageChange(e.target.value)}
+            disabled={isTranslating}
+            className="universal-language-select"
+          >
+            {languages.map((lang, i) => (
+              <option key={i} value={lang}>{lang}</option>
+            ))}
+          </select>
+          {isTranslating && (
+            <span className="language-loader">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </span>
+          )}
         </div>
-
-        {theme === "dark" ? "Light Mode" : "Dark Mode"}
-
-      </button>
+      </div>
 
     </div>
   );

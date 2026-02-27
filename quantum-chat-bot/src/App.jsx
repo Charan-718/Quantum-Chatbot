@@ -34,6 +34,32 @@ function App() {
   /* SIDEBAR STATE */
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  /* LANGUAGE STATE - Initialize from localStorage */
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    return savedLanguage || "English";
+  });
+  
+  const [translatedMessages, setTranslatedMessages] = useState({});
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const LANGUAGES = [
+    "English", "Hindi", "Telugu", "Spanish", "French", "German",
+    "Italian", "Portuguese", "Russian", "Arabic", "Japanese", "Korean"
+  ];
+
+  /* Save language preference to localStorage whenever it changes */
+  useEffect(() => {
+    localStorage.setItem('preferredLanguage', selectedLanguage);
+  }, [selectedLanguage]);
+
+  /* Auto-translate messages when language is not English and messages change */
+  useEffect(() => {
+    if (selectedLanguage !== "English" && messages.length > 0) {
+      translateAllMessages(selectedLanguage, false); // Don't show loading for auto-translate
+    }
+  }, [messages]);
+
   /* THEME */
 
   useEffect(() => {
@@ -54,8 +80,6 @@ function App() {
 
 
   /* LOAD CHAT - No animation for saved chats */
-
-  /* LOAD CHAT - No animation for saved chats */
 const loadChat = async (chat) => {
   try {
     const res =
@@ -66,44 +90,54 @@ const loadChat = async (chat) => {
     setConversationId(data._id);
     setMode(chat.mode);
     
-    // Deduplicate consecutive identical user messages
+    // Filter out system messages and deduplicate user messages
     const rawMessages = data.messages || [];
-    const dedupedMessages = [];
+    const filteredMessages = [];
     
     for (let i = 0; i < rawMessages.length; i++) {
       const currentMsg = rawMessages[i];
       
-      // Always add bot messages
-      if (currentMsg.sender === 'bot') {
-        dedupedMessages.push(currentMsg);
+      // Skip system bot messages
+      if (currentMsg.sender === "bot") {
+        // Skip welcome message
+        if (currentMsg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+          continue;
+        }
+        // Skip "New session started" message
+        if (currentMsg.text === "New session started.") {
+          continue;
+        }
+        // Add other bot messages
+        filteredMessages.push(currentMsg);
         continue;
       }
       
-      // For user messages, check if it's a duplicate of the previous user message
+      // For user messages, check for duplicates
       if (currentMsg.sender === 'user') {
-        // Check if previous message exists and is also a user message with same text
-        const prevMsg = i > 0 ? rawMessages[i - 1] : null;
+        // Check if this is a duplicate of the previous user message
+        const prevMsg = filteredMessages.length > 0 ? filteredMessages[filteredMessages.length - 1] : null;
         
         if (prevMsg && 
             prevMsg.sender === 'user' && 
-            prevMsg.text === currentMsg.text &&
-            // Check if they are within a short time window (e.g., 2 seconds)
-            Math.abs(new Date(currentMsg.createdAt) - new Date(prevMsg.createdAt)) < 2000) {
-          // Skip this duplicate message
+            prevMsg.text === currentMsg.text) {
+          // Skip duplicate user message
           continue;
         }
         
-        dedupedMessages.push(currentMsg);
+        filteredMessages.push(currentMsg);
       }
     }
     
     // Add shouldAnimate: false to all messages when loading from history
-    const loadedMessages = dedupedMessages.map(msg => ({
+    const loadedMessages = filteredMessages.map(msg => ({
       ...msg,
       shouldAnimate: false
     }));
     
     setMessages(loadedMessages);
+    
+    // Reset translations when loading new chat but keep language preference
+    setTranslatedMessages({});
     
     // Close sidebar after selecting a chat
     setSidebarOpen(false);
@@ -137,6 +171,7 @@ const loadChat = async (chat) => {
         shouldAnimate: true 
       }
     ]);
+    setTranslatedMessages({});
     setSidebarOpen(false);
   };
 
@@ -214,14 +249,43 @@ const loadChat = async (chat) => {
       return;
     }
 
-    // Save all messages except the initial bot greeting if it's the only message
-    for (const msg of messages) {
+    // Save only user messages and their corresponding bot responses
+    // Skip system messages like welcome message and "New session started"
+    const messagesToSave = [];
+    
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      
+      // Skip system bot messages
+      if (msg.sender === "bot") {
+        // Skip welcome message
+        if (msg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+          continue;
+        }
+        // Skip "New session started" message
+        if (msg.text === "New session started.") {
+          continue;
+        }
+      }
+      
+      // Check for duplicates: if this is a user message and the next message is also a user message with same text, skip this one
+      if (msg.sender === "user" && i < messages.length - 1) {
+        const nextMsg = messages[i + 1];
+        if (nextMsg.sender === "user" && nextMsg.text === msg.text) {
+          continue; // Skip this duplicate user message
+        }
+      }
+      
+      messagesToSave.push(msg);
+    }
+
+    // Save filtered messages
+    for (const msg of messagesToSave) {
       await saveMessage(id, msg.sender, msg.text);
     }
 
     setConversationId(id);
     alert("Conversation saved successfully");
-
   };
 
 
@@ -361,6 +425,54 @@ const loadChat = async (chat) => {
   };
 
 
+  /* UNIVERSAL TRANSLATE - Translate all messages */
+  const translateAllMessages = async (targetLanguage, showLoading = true) => {
+    if (targetLanguage === "English") {
+      setSelectedLanguage(targetLanguage);
+      setTranslatedMessages({});
+      return;
+    }
+
+    if (showLoading) {
+      setIsTranslating(true);
+    }
+    
+    // Get all unique messages that need translation
+    const messagesToTranslate = messages.map((msg, index) => ({
+      index,
+      text: msg.text
+    }));
+
+    const newTranslations = {};
+
+    for (const { index, text } of messagesToTranslate) {
+      try {
+        const res = await fetch("http://localhost:5500/translate-audio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            text, 
+            language: targetLanguage,
+            audio: false // Don't need audio for bulk translation
+          })
+        });
+
+        const data = await res.json();
+        newTranslations[index] = data.translatedText || text;
+      } catch {
+        newTranslations[index] = text; // Fallback to original text
+      }
+    }
+
+    setTranslatedMessages(newTranslations);
+    setSelectedLanguage(targetLanguage);
+    
+    if (showLoading) {
+      setIsTranslating(false);
+    }
+  };
+
+
   /* UI */
 
   return (
@@ -414,7 +526,7 @@ const loadChat = async (chat) => {
 
       <Sidebar 
         onSelectChat={loadChat} 
-        onNewChat={startNewChat}  // Add this prop
+        onNewChat={startNewChat}
         isOpen={sidebarOpen}
         onToggle={setSidebarOpen}
       />
@@ -427,6 +539,10 @@ const loadChat = async (chat) => {
           mode={mode}
           requestModeChange={requestModeChange}
           showContent={showContent}
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={translateAllMessages}
+          isTranslating={isTranslating}
+          languages={LANGUAGES}
         />
 
         {messages.length > 1 && !conversationId && (
@@ -444,13 +560,16 @@ const loadChat = async (chat) => {
           </div>
         )}
 
+        <InputBox onSend={sendQuestion} />
+
         <ChatBox
           messages={messages}
           loading={loading}
           onLanguageSelect={handleLanguageSelect}
+          translatedMessages={translatedMessages}
+          selectedLanguage={selectedLanguage}
         />
 
-        <InputBox onSend={sendQuestion} />
       </div>
 
       {modalData && (

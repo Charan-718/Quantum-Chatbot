@@ -34,7 +34,7 @@ function normaliseMath(text) {
     .replace(/(?:^|\n)\[\s*([\s\S]*?)\s*\](?=\s*(?:\n|$))/g, (_, expr) => `\n$$\n${expr.trim()}\n$$\n`);
 }
 
-function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
+function Message({ sender, text, originalText, onLanguageSelect, shouldAnimate = false, selectedLanguage = "English" }) {
 
   const [displayedText, setDisplayedText] = useState(
     sender === "bot" ? (shouldAnimate ? "" : text) : text
@@ -62,7 +62,8 @@ function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
     if (!lang) return;
-    onLanguageSelect(text, lang);
+    // Use original text for translation, not translated text
+    onLanguageSelect(originalText || text, lang);
     e.target.value = "";
   };
 
@@ -84,6 +85,9 @@ function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
         <span className="message-role">
           {sender === "user" ? "You" : "Assistant"}
         </span>
+        {selectedLanguage !== "English" && (
+          <span className="language-indicator">🌐 {selectedLanguage}</span>
+        )}
       </div>
 
       <div className="message-body">

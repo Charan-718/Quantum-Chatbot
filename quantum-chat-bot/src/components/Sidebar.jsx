@@ -6,6 +6,7 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
   const [history, setHistory] = useState([]);
   const [mode, setMode] = useState("chat");
   const [showSidebarButton, setShowSidebarButton] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState(null);
 
 
   /* LOAD HISTORY */
@@ -135,12 +136,12 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
             Chat
           </button>
 
-          <button
+          {/* <button
             className={mode === "research" ? "active" : ""}
             onClick={() => setMode("research")}
           >
             Research
-          </button>
+          </button> */}
 
         </div>
 
@@ -166,18 +167,21 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
 
               <div
                 key={chat._id}
-                className="history-item"
+                className={`history-item ${
+                  selectedChatId === chat._id ? "selected" : ""
+                }`}
               >
 
                 <span
                   className="history-title"
-                  onClick={() =>
+                  onClick={() => {
+                    setSelectedChatId(chat._id);
                     onSelectChat({
                       _id: chat._id,
                       mode,
                       messages: chat.messages
-                    })
-                  }
+                    });
+                  }}
                 >
                   {title}
                 </span>
