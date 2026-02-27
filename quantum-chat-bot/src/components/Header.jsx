@@ -43,12 +43,12 @@ function Header({
           Chat Mode
         </button>
 
-        <button
+        {/* <button
           className={mode === "research" ? "active" : ""}
           onClick={() => requestModeChange("research")}
         >
           Research Mode
-        </button>
+        </button> */}
 
       </div>
 

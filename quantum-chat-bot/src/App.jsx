@@ -52,66 +52,70 @@ function App() {
   return () => clearTimeout(timer);
 }, []);
 
-
   /* LOAD CHAT - No animation for saved chats */
+  const loadChat = async (chat) => {
+    try {
+      const res =
+        await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
 
-  /* LOAD CHAT - No animation for saved chats */
-const loadChat = async (chat) => {
-  try {
-    const res =
-      await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
+      const data = await res.json();
 
-    const data = await res.json();
-
-    setConversationId(data._id);
-    setMode(chat.mode);
-    
-    // Deduplicate consecutive identical user messages
-    const rawMessages = data.messages || [];
-    const dedupedMessages = [];
-    
-    for (let i = 0; i < rawMessages.length; i++) {
-      const currentMsg = rawMessages[i];
+      setConversationId(data._id);
+      setMode(chat.mode);
       
-      // Always add bot messages
-      if (currentMsg.sender === 'bot') {
-        dedupedMessages.push(currentMsg);
-        continue;
-      }
+      // Filter out system messages and deduplicate user messages
+      const rawMessages = data.messages || [];
+      const filteredMessages = [];
       
-      // For user messages, check if it's a duplicate of the previous user message
-      if (currentMsg.sender === 'user') {
-        // Check if previous message exists and is also a user message with same text
-        const prevMsg = i > 0 ? rawMessages[i - 1] : null;
+      for (let i = 0; i < rawMessages.length; i++) {
+        const currentMsg = rawMessages[i];
         
-        if (prevMsg && 
-            prevMsg.sender === 'user' && 
-            prevMsg.text === currentMsg.text &&
-            // Check if they are within a short time window (e.g., 2 seconds)
-            Math.abs(new Date(currentMsg.createdAt) - new Date(prevMsg.createdAt)) < 2000) {
-          // Skip this duplicate message
+        // Skip system bot messages
+        if (currentMsg.sender === "bot") {
+          // Skip welcome message
+          if (currentMsg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+            continue;
+          }
+          // Skip "New session started" message
+          if (currentMsg.text === "New session started.") {
+            continue;
+          }
+          // Add other bot messages
+          filteredMessages.push(currentMsg);
           continue;
         }
         
-        dedupedMessages.push(currentMsg);
+        // For user messages, check for duplicates
+        if (currentMsg.sender === 'user') {
+          // Check if this is a duplicate of the previous user message
+          const prevMsg = filteredMessages.length > 0 ? filteredMessages[filteredMessages.length - 1] : null;
+          
+          if (prevMsg && 
+              prevMsg.sender === 'user' && 
+              prevMsg.text === currentMsg.text) {
+            // Skip duplicate user message
+            continue;
+          }
+          
+          filteredMessages.push(currentMsg);
+        }
       }
+      
+      // Add shouldAnimate: false to all messages when loading from history
+      const loadedMessages = filteredMessages.map(msg => ({
+        ...msg,
+        shouldAnimate: false
+      }));
+      
+      setMessages(loadedMessages);
+      
+      // Close sidebar after selecting a chat
+      setSidebarOpen(false);
     }
-    
-    // Add shouldAnimate: false to all messages when loading from history
-    const loadedMessages = dedupedMessages.map(msg => ({
-      ...msg,
-      shouldAnimate: false
-    }));
-    
-    setMessages(loadedMessages);
-    
-    // Close sidebar after selecting a chat
-    setSidebarOpen(false);
-  }
-  catch {
-    console.log("Failed to load chat");
-  }
-};
+    catch {
+      console.log("Failed to load chat");
+    }
+  };
 
 
   /* START NEW CHAT - Reset to fresh session */
@@ -187,42 +191,73 @@ const loadChat = async (chat) => {
 
   /* SAVE FULL CHAT - Manual save only */
 
-  const saveFullConversation = async () => {
+  /* SAVE FULL CHAT - Manual save only */
 
-    // Don't save if conversation is empty or already saved
-    if (messages.length <= 1) {
-      alert("No messages to save");
-      return;
+const saveFullConversation = async () => {
+
+  // Don't save if conversation is empty or already saved
+  if (messages.length <= 1) {
+    alert("No messages to save");
+    return;
+  }
+
+  // If already saved, don't save again
+  if (conversationId) {
+    alert("Conversation already saved");
+    return;
+  }
+
+  const firstUser = messages.find(m => m.sender === "user");
+  if (!firstUser) {
+    alert("No user messages to save");
+    return;
+  }
+
+  const id = await startConversation(firstUser.text);
+
+  if (!id) {
+    alert("History server offline");
+    return;
+  }
+
+  // Save only user messages and their corresponding bot responses
+  // Skip system messages like welcome message and "New session started"
+  const messagesToSave = [];
+  
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    
+    // Skip system bot messages
+    if (msg.sender === "bot") {
+      // Skip welcome message
+      if (msg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+        continue;
+      }
+      // Skip "New session started" message
+      if (msg.text === "New session started.") {
+        continue;
+      }
     }
-
-    // If already saved, don't save again
-    if (conversationId) {
-      alert("Conversation already saved");
-      return;
+    
+    // Check for duplicates: if this is a user message and the next message is also a user message with same text, skip this one
+    if (msg.sender === "user" && i < messages.length - 1) {
+      const nextMsg = messages[i + 1];
+      if (nextMsg.sender === "user" && nextMsg.text === msg.text) {
+        continue; // Skip this duplicate user message
+      }
     }
+    
+    messagesToSave.push(msg);
+  }
 
-    const firstUser = messages.find(m => m.sender === "user");
-    if (!firstUser) {
-      alert("No user messages to save");
-      return;
-    }
+  // Save filtered messages
+  for (const msg of messagesToSave) {
+    await saveMessage(id, msg.sender, msg.text);
+  }
 
-    const id = await startConversation(firstUser.text);
-
-    if (!id) {
-      alert("History server offline");
-      return;
-    }
-
-    // Save all messages except the initial bot greeting if it's the only message
-    for (const msg of messages) {
-      await saveMessage(id, msg.sender, msg.text);
-    }
-
-    setConversationId(id);
-    alert("Conversation saved successfully");
-
-  };
+  setConversationId(id);
+  alert("Conversation saved successfully");
+};
 
 
   /* MODE SWITCH */
