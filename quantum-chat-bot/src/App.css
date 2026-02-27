@@ -103,6 +103,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   transition: background 0.4s ease, color 0.4s ease;
+  background-image: url("./assets/x-gradient.jpg");
+  background-size: cover;
 }
 
 /* ─── QUANTUM GRID BACKGROUND ───────────────────────────── */

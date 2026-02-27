@@ -1,15 +1,38 @@
+import { useEffect, useState } from 'react';
 import './Header.css'
 
 function Header({
   theme,
   toggleTheme,
   mode,
-  requestModeChange
+  requestModeChange,
+  showContent // Add this prop
 }) {
+  const [animateLogo, setAnimateLogo] = useState(false);
+
+  useEffect(() => {
+    if (showContent) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        setAnimateLogo(true);
+      }, 1000);
+    }
+  }, [showContent]);
+
   return (
     <div className="app-header">
 
-      <h1>QuBot</h1>
+      <h1 className="logo">
+        {"QuBot".split("").map((letter, index) => (
+          <span
+            key={index}
+            className={animateLogo ? 'animate' : ''}
+            style={{ animationDelay: animateLogo ? `${index * 0.15}s` : '0s' }}
+          >
+            {letter}
+          </span>
+        ))}
+      </h1>
 
       <div className="mode-toggle">
 

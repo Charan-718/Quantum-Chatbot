@@ -14,17 +14,6 @@
 }
 
 /* ─── TITLE ──────────────────────────────────────────────── */
-h1 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-}
 
 h1::after {
   content: '';
@@ -36,6 +25,47 @@ h1::after {
   background: linear-gradient(90deg, var(--accent-primary), transparent);
   border-radius: 2px;
 }
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+/* Apply gradient to each letter */
+.logo span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(20px);
+  filter: blur(6px);
+
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animation class instead of hardcoded delay */
+.logo span.animate {
+  animation: letterReveal 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+@keyframes letterReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+
 
 /* ============================================================
    MODE TOGGLE SWITCH

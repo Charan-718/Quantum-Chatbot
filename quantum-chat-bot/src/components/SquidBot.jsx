@@ -10,228 +10,6 @@
 //     const currentMount = mountRef.current;
 //     if (!currentMount) return;
 
-//     const scene = new THREE.Scene();
-
-//     const camera = new THREE.PerspectiveCamera(
-//       60,
-//       currentMount.clientWidth / currentMount.clientHeight,
-//       0.1,
-//       1000
-//     );
-//     camera.position.set(0, 2, 4);
-
-//     const renderer = new THREE.WebGLRenderer({
-//       antialias: true,
-//       alpha: true,
-//     });
-
-//     renderer.setSize(
-//       currentMount.clientWidth,
-//       currentMount.clientHeight
-//     );
-
-//     renderer.setClearColor(0x000000, 0);
-//     renderer.shadowMap.enabled = true;
-
-//     currentMount.appendChild(renderer.domElement);
-
-//     // Lights
-//     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-//     scene.add(ambientLight);
-
-//     const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-//     directionalLight.position.set(5, 10, 5);
-//     directionalLight.castShadow = true;
-//     scene.add(directionalLight);
-
-//     const plane = new THREE.Mesh(
-//       new THREE.PlaneGeometry(20, 20),
-//       new THREE.ShadowMaterial({ opacity: 0.25 })
-//     );
-//     plane.rotation.x = -Math.PI / 2;
-//     plane.receiveShadow = true;
-//     scene.add(plane);
-
-//     const loader = new GLTFLoader();
-
-//     let model;
-//     const clock = new THREE.Clock();
-//     let loadTime = 0;
-
-//     let specialAnimStarted = false;
-//     let specialAnimStartTime = 0;
-//     let animationFinished = false;
-
-//     // Target values
-//     const targetX = -2.70;  // more left → increase magnitude
-//     const targetY = 3.78;   // more up → increase
-//     const targetScale = 0.17;   // smaller → reduce
-
-//     loader.load("/squid_bot.glb", (gltf) => {
-//       model = gltf.scene;
-
-//       model.traverse((child) => {
-//         if (child.isMesh) {
-//           child.castShadow = true;
-//           child.receiveShadow = true;
-//         }
-//       });
-
-//       model.position.set(0, 1.5, 0);
-//       model.scale.set(1, 1, 1);
-
-//       scene.add(model);
-//       loadTime = clock.getElapsedTime();
-//     });
-
-// const finalRotationY = 0.49;   // face forward
-// const finalRotationX = 0.25;   // no tilt
-
-// const animate = () => {
-//   requestAnimationFrame(animate);
-
-//   const elapsed = clock.getElapsedTime();
-
-//   if (model) {
-
-//     // Trigger special animation after 3s
-//     if (!specialAnimStarted && elapsed - loadTime > 3) {
-//       specialAnimStarted = true;
-//       specialAnimStartTime = elapsed;
-//     }
-
-//     let targetPosX = 0;
-//     let targetPosY = 1.5;
-//     let targetScaleNow = 1;
-//     let targetRotY = 0;
-
-//     if (specialAnimStarted && !animationFinished) {
-//       const animElapsed = elapsed - specialAnimStartTime;
-//       const duration = 1;
-
-//       if (animElapsed <= duration) {
-//         const progress = animElapsed / duration;
-//         const ease = 1 - Math.pow(1 - progress, 3);
-
-//         targetPosX = ease * targetX;
-//         targetPosY = 1.5 + ease * (targetY - 1.5);
-//         targetScaleNow = 1 - ease * (1 - targetScale);
-//         targetRotY = ease * Math.PI * 2.2;
-//       } else {
-//         animationFinished = true;
-//       }
-//     }
-
-//     if (animationFinished) {
-//       targetPosX = targetX;
-//       targetPosY = targetY;
-//       targetScaleNow = targetScale;
-//       targetRotY = finalRotationY;  // ← straight forward
-//     }
-
-//     // Smooth interpolation always
-//     model.position.x = THREE.MathUtils.lerp(
-//       model.position.x,
-//       targetPosX,
-//       0.08
-//     );
-
-//     model.position.y = THREE.MathUtils.lerp(
-//       model.position.y,
-//       targetPosY,
-//       0.08
-//     );
-
-//     model.scale.x = model.scale.y = model.scale.z =
-//       THREE.MathUtils.lerp(model.scale.x, targetScaleNow, 0.08);
-
-//     model.rotation.y = THREE.MathUtils.lerp(
-//       model.rotation.y,
-//       targetRotY,
-//       0.08
-//     );
-
-//     model.rotation.x = THREE.MathUtils.lerp(
-//       model.rotation.x,
-//       finalRotationX,
-//       0.08
-//     );
-
-//     // Smooth base Y
-// model.position.y = THREE.MathUtils.lerp(
-//   model.position.y,
-//   targetPosY,
-//   0.08
-// );
-
-// // Floating parameters
-// const floatSpeed = 2;
-// const floatAmount = animationFinished ? 0.005 : 0.075;
-
-// const floatOffset = Math.sin(elapsed * floatSpeed) * floatAmount;
-
-// // Apply float cleanly
-// model.position.y += floatOffset;
-//   }
-
-//   renderer.render(scene, camera);
-// };
-
-//     animate();
-
-//     const handleResize = () => {
-//       camera.aspect =
-//         currentMount.clientWidth / currentMount.clientHeight;
-//       camera.updateProjectionMatrix();
-//       renderer.setSize(
-//         currentMount.clientWidth,
-//         currentMount.clientHeight
-//       );
-//     };
-
-//     window.addEventListener("resize", handleResize);
-
-//     return () => {
-//       window.removeEventListener("resize", handleResize);
-//       if (currentMount && renderer.domElement) {
-//         currentMount.removeChild(renderer.domElement);
-//       }
-//       renderer.dispose();
-//     };
-//   }, []);
-
-//   return <div ref={mountRef} className="squidbot-container" />;
-// };
-
-// export default SquidBot;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useRef } from "react";
-// import * as THREE from "three";
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-// import "./SquidBot.css";
-
-// const SquidBot = () => {
-//   const mountRef = useRef(null);
-
-//   useEffect(() => {
-//     const currentMount = mountRef.current;
-//     if (!currentMount) return;
-
 //     // Get dimensions from the container
 //     const width = currentMount.clientWidth;
 //     const height = currentMount.clientHeight;
@@ -248,7 +26,6 @@
 //     camera.position.set(0, 2, 4);
 
 //     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-//     // renderer.setSize(width, height);
 //     renderer.setSize(
 //       currentMount.clientWidth,
 //       currentMount.clientHeight
@@ -290,6 +67,11 @@
 //     let phaseStartTime = 0;
 //     let animationCompleted = false;
     
+//     // Delay before starting animation
+//     const ANIMATION_DELAY = 1000; // milliseconds
+//     let animationStarted = false;
+//     let startTimer = null;
+    
 //     // Target rotations (in radians)
 //     const targetRotations = {
 //       neutral: { x: 0, y: 0, z: 0 },
@@ -314,8 +96,11 @@
 
 //       scene.add(model);
       
-//       // Start the animation sequence after model loads
-//       phaseStartTime = clock.getElapsedTime();
+//       // Set a timeout to start animation after delay
+//       startTimer = setTimeout(() => {
+//         animationStarted = true;
+//         phaseStartTime = clock.getElapsedTime();
+//       }, ANIMATION_DELAY);
 //     });
 
 //     // Mouse controls
@@ -360,8 +145,8 @@
 //       if (model) {
 //         const time = clock.getElapsedTime();
         
-//         // Auto animation sequence when not being dragged and animation not completed
-//         if (!isDragging && !animationCompleted) {
+//         // Auto animation sequence when not being dragged, animation started, and not completed
+//         if (!isDragging && animationStarted && !animationCompleted) {
 //           const timeInPhase = time - phaseStartTime;
 
 //           // Phase management
@@ -491,6 +276,10 @@
 //       window.removeEventListener("mouseup", onMouseUp);
 //       window.removeEventListener("resize", handleResize);
 
+//       if (startTimer) {
+//         clearTimeout(startTimer);
+//       }
+
 //       if (currentMount && renderer.domElement) {
 //         currentMount.removeChild(renderer.domElement);
 //       }
@@ -503,6 +292,13 @@
 // };
 
 // export default SquidBot;
+
+
+
+
+
+
+
 
 
 
@@ -585,6 +381,11 @@ const SquidBot = () => {
     let animationPhase = 0; // 0: top-right, 1: bottom-left, 2: return to neutral, 3: rotate 360, 4: completed
     let phaseStartTime = 0;
     let animationCompleted = false;
+    
+    // Camera target position after completion
+    const initialCameraPos = new THREE.Vector3(0, 2, 4);
+    const finalCameraPos = new THREE.Vector3(0, 2, 8);
+    let cameraMoveStarted = false;
     
     // Delay before starting animation
     const ANIMATION_DELAY = 1000; // milliseconds
@@ -760,6 +561,16 @@ const SquidBot = () => {
               model.rotation.y = 0; // Reset to facing forward
             }
           }
+        }
+
+        // After animation completes, smoothly move camera to final position
+        if (animationCompleted && !cameraMoveStarted) {
+          cameraMoveStarted = true;
+        }
+        
+        if (animationCompleted) {
+          // Smoothly interpolate camera position
+          camera.position.lerpVectors(initialCameraPos, finalCameraPos, 0.02); // Adjust speed via factor
         }
 
         // Always apply floating motion (subtle up/down) while staying centered

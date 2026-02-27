@@ -348,6 +348,7 @@ function App() {
           toggleTheme={toggleTheme}
           mode={mode}
           requestModeChange={requestModeChange}
+          showContent={showContent}
         />
 
         {messages.length > 1 && !conversationId && (
