@@ -1,0 +1,141 @@
+/* .squidbot-container {
+  position: absolute; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  width: 90vw;
+  height: 90vh;
+
+  z-index: 10;                 
+  pointer-events: none;         
+} */
+
+
+
+
+
+.squidbot-container {
+  position: absolute; /* Better for full-screen intro */
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  
+  z-index: 10;
+  pointer-events: none;
+
+  animation: squidbotJourney 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 8s;
+}
+
+/* Journey Animation */
+@keyframes squidbotJourney {
+
+  0% {
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+  }
+
+  40% {
+    top: 0px;
+    left: 100px;
+    width: 69px;
+    height: 69px;
+    transform: translate(0, 0);
+  }
+
+  100% {
+    top: -44px;
+    left: 60px;
+    width: 69px;
+    height: 69px;
+    transform: translate(0, 0);
+  }
+}
+
+
+
+
+
+
+/* Floating Cards */
+
+.floating-card {
+  position: absolute;
+  width: 350px;
+  padding: 18px 20px;
+  border-radius: 16px;
+
+  background: var(--bg-glass);
+  border: 1px solid var(--border-dim);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: var(--shadow-glow);
+  z-index: 15;
+
+  opacity: 0;
+}
+
+.floating-card h4 {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-primary);
+}
+
+.floating-card p {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Positions */
+
+.top-right {
+  top: 150px;
+  right: 200px;
+  animation: cardTimeline 7s ease forwards;
+  animation-delay: 1s;
+}
+
+.bottom-left {
+  bottom: 150px;
+  left: 250px;
+  animation: cardTimeline 4s ease forwards;
+  animation-delay: 4s; /* Slight stagger */
+}
+
+/* Animation */
+@keyframes cardTimeline {
+
+  /* Hidden initially */
+  0% {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+
+  /* Fade in quickly */
+  15% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stay visible */
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Fade out */
+  100% {
+    opacity: 0;
+    transform: translateY(-0px);
+  }
+}

@@ -5,6 +5,7 @@ function Sidebar({ onSelectChat, isOpen, onToggle }) {
 
   const [history, setHistory] = useState([]);
   const [mode, setMode] = useState("chat");
+  const [showSidebarButton, setShowSidebarButton] = useState(false);
 
 
   /* LOAD HISTORY */
@@ -31,6 +32,16 @@ function Sidebar({ onSelectChat, isOpen, onToggle }) {
     }
 
   };
+
+
+
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowSidebarButton(true);
+  }, 8000);
+
+  return () => clearTimeout(timer);
+}, []);
 
 
   useEffect(() => {
@@ -72,7 +83,7 @@ function Sidebar({ onSelectChat, isOpen, onToggle }) {
 
     <>
 
-      {!isOpen && (
+      {!isOpen && showSidebarButton && (
 
         <button
           className="sidebar-open"

@@ -170,6 +170,18 @@ body::after {
   margin-left: 0;
 }
 
+.main-content.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+.main-content.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
 /* When sidebar is expanded, main content shrinks to make room */
 .sidebar-expanded .main-content {
   margin-right: var(--sidebar-width);

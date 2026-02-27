@@ -5,6 +5,7 @@ import LanguageModal from "./components/LanguageModal";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import ConfirmModal from "./components/ConfirmModal";
+import SquidBot from "./components/SquidBot";
 import "./App.css";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [conversationId, setConversationId] = useState(null);
+  const [showContent, setShowContent] = useState(false);
 
   /* SIDEBAR STATE */
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,6 +42,15 @@ function App() {
 
   const toggleTheme = () =>
     setTheme(prev => prev === "dark" ? "light" : "dark");
+
+
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowContent(true);
+  }, 8000);
+
+  return () => clearTimeout(timer);
+}, []);
 
 
   /* LOAD CHAT - No animation for saved chats */
@@ -297,13 +308,41 @@ function App() {
 
     <div className={`app ${sidebarOpen ? 'sidebar-expanded' : ''}`}>
 
+      <div className="squidbot-container">
+        <SquidBot />
+      </div>
+
+      {/* Floating Cards */}
+      <div className="floating-card top-right">
+        <h4>Quantum Code Hub Assistant</h4>
+        <p>
+          Welcome to Quantum Code Hub. I’m your intelligent coding companion,
+          ready to translate ideas into quantum circuits and logic into precision.
+          Let’s explore, build, and innovate together.
+        </p>
+      </div>
+
+      <div className="floating-card bottom-left">
+        <h4>Your Quantum Guide</h4>
+        <p>
+          Ask your questions, share your code, or describe your challenge.
+          I’ll analyze, generate, refine, and explain with clarity,
+          turning complex quantum concepts into practical solutions.
+        </p>
+      </div>
+
       <Sidebar 
         onSelectChat={loadChat} 
         isOpen={sidebarOpen}
         onToggle={setSidebarOpen}
       />
 
-      <div className="main-content">
+      <div className={`main-content ${showContent ? "visible" : "hidden"}`}>
+
+        {/* <div className="squidbot-container">
+          <SquidBot />
+        </div> */}
+        
         <Header
           theme={theme}
           toggleTheme={toggleTheme}
