@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Sidebar.css";
 
-function Sidebar({ onSelectChat, isOpen, onToggle }) {
+function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
 
   const [history, setHistory] = useState([]);
   const [mode, setMode] = useState("chat");
@@ -111,6 +111,20 @@ function Sidebar({ onSelectChat, isOpen, onToggle }) {
         </div>
 
 
+        {/* NEW CHAT BUTTON */}
+        <div className="new-chat-container">
+          <button
+            className="new-chat-btn"
+            onClick={() => {
+              onNewChat();
+              onToggle(false); // Close sidebar after starting new chat
+            }}
+          >
+            + New Chat
+          </button>
+        </div>
+
+
         {/* MODE SWITCH */}
         <div className="sidebar-tabs">
 
@@ -173,7 +187,25 @@ function Sidebar({ onSelectChat, isOpen, onToggle }) {
                   className="delete-btn"
                   onClick={() => deleteChat(chat._id)}
                 >
-                  🗑
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M10 11v6M14 11v6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </button>
 
               </div>

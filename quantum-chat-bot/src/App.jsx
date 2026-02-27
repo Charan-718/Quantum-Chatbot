@@ -55,30 +55,89 @@ function App() {
 
   /* LOAD CHAT - No animation for saved chats */
 
-  const loadChat = async (chat) => {
-    try {
-      const res =
-        await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
+  /* LOAD CHAT - No animation for saved chats */
+const loadChat = async (chat) => {
+  try {
+    const res =
+      await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
 
-      const data = await res.json();
+    const data = await res.json();
 
-      setConversationId(data._id);
-      setMode(chat.mode);
+    setConversationId(data._id);
+    setMode(chat.mode);
+    
+    // Deduplicate consecutive identical user messages
+    const rawMessages = data.messages || [];
+    const dedupedMessages = [];
+    
+    for (let i = 0; i < rawMessages.length; i++) {
+      const currentMsg = rawMessages[i];
       
-      // Add shouldAnimate: false to all messages when loading from history
-      const loadedMessages = (data.messages || []).map(msg => ({
-        ...msg,
-        shouldAnimate: false
-      }));
+      // Always add bot messages
+      if (currentMsg.sender === 'bot') {
+        dedupedMessages.push(currentMsg);
+        continue;
+      }
       
-      setMessages(loadedMessages);
-      
-      // Close sidebar after selecting a chat
-      setSidebarOpen(false);
+      // For user messages, check if it's a duplicate of the previous user message
+      if (currentMsg.sender === 'user') {
+        // Check if previous message exists and is also a user message with same text
+        const prevMsg = i > 0 ? rawMessages[i - 1] : null;
+        
+        if (prevMsg && 
+            prevMsg.sender === 'user' && 
+            prevMsg.text === currentMsg.text &&
+            // Check if they are within a short time window (e.g., 2 seconds)
+            Math.abs(new Date(currentMsg.createdAt) - new Date(prevMsg.createdAt)) < 2000) {
+          // Skip this duplicate message
+          continue;
+        }
+        
+        dedupedMessages.push(currentMsg);
+      }
     }
-    catch {
-      console.log("Failed to load chat");
+    
+    // Add shouldAnimate: false to all messages when loading from history
+    const loadedMessages = dedupedMessages.map(msg => ({
+      ...msg,
+      shouldAnimate: false
+    }));
+    
+    setMessages(loadedMessages);
+    
+    // Close sidebar after selecting a chat
+    setSidebarOpen(false);
+  }
+  catch {
+    console.log("Failed to load chat");
+  }
+};
+
+
+  /* START NEW CHAT - Reset to fresh session */
+
+  const startNewChat = () => {
+    // Check if current chat has messages (excluding the initial bot greeting)
+    if (messages.length > 1) {
+      // If there are messages, ask to save
+      setPendingMode(mode); // Keep current mode
+      setShowConfirm(true);
+    } else {
+      // If no messages, just reset
+      resetToNewChat();
     }
+  };
+
+  const resetToNewChat = () => {
+    setConversationId(null);
+    setMessages([
+      { 
+        sender: "bot", 
+        text: "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?",
+        shouldAnimate: true 
+      }
+    ]);
+    setSidebarOpen(false);
   };
 
 
@@ -355,6 +414,7 @@ function App() {
 
       <Sidebar 
         onSelectChat={loadChat} 
+        onNewChat={startNewChat}  // Add this prop
         isOpen={sidebarOpen}
         onToggle={setSidebarOpen}
       />
