@@ -54,7 +54,7 @@
 }
 
 .input-container input::placeholder {
-  color: var(--text-muted);
+  color: var(--bg-base);
   font-style: italic;
   font-size: 0.88rem;
 }

@@ -139,7 +139,22 @@ function CopyBtn({ success, tooltip, onCopy }) {
         onClick={onCopy}
         title="Copy to clipboard"
       >
-        {success ? "✓" : "📋"}
+        {success ? "✓" : (
+          // Copy Icon
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="3" />
+            <rect x="2" y="2" width="13" height="13" rx="3" />
+          </svg>
+        )}
       </button>
       {tooltip && (
         <span className="copy-tooltip">{success ? "Copied!" : "Copy"}</span>
