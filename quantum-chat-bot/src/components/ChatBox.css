@@ -17,6 +17,8 @@
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.04);
   scroll-behavior: smooth;
   transition: var(--transition);
+  /* background-image: url("../assets/multi-gradient.jpg"); */
+  /* background-size: cover; */
 }
 
 /* Scrollbar */
