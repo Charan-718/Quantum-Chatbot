@@ -34,13 +34,6 @@
 }
 
 
-
-
-
-
-
-
-
 /* =========================================
    GOLDEN RATIO TYPOGRAPHY SCALE
    ========================================= */
@@ -187,7 +180,7 @@
 .top-right {
   top: 120px;
   right: 120px;
-  animation: cardTimeline 5.5s ease forwards;
+  animation: cardTimeline 6.5s ease forwards;
   animation-delay: 1.5s;
 }
 

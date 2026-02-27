@@ -324,7 +324,7 @@ function App() {
             ))}
         </h4>
         <p>
-          {"Where algorithms meet elegance and every line of logic resonates with structured beauty."
+          {"Ask me about qubits, circuits, algorithms, or frameworks like Qiskit and PennyLane. Let's explore the quantum world together."
             .split(" ")
             .map((word, i) => (
               <span key={i} style={{ animationDelay: `${i * 0.06}s` }}>
