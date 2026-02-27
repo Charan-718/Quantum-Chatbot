@@ -299,7 +299,6 @@
   }
 }
 
-
 .new-chat-container {
   padding: 16px 16px 20px 16px;
   border-bottom: 1px solid var(--border-dim);
@@ -367,4 +366,32 @@
 [data-theme="light"] .new-chat-btn:hover {
   background: var(--accent-secondary);
   box-shadow: 0 6px 16px rgba(114, 9, 183, 0.25);
+}
+
+.history-item.selected {
+  background: var(--accent-glow);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.history-item.selected .history-title {
+  color: var(--accent-primary);
+}
+
+.history-item.selected {
+  position: relative;
+}
+
+.history-item.selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: linear-gradient(
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+  border-radius: 2px;
 }

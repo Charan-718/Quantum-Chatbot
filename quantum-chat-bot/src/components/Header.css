@@ -67,8 +67,6 @@ h1::after {
   }
 }
 
-
-
 /* ============================================================
    MODE TOGGLE SWITCH
    ============================================================ */
@@ -299,11 +297,6 @@ h1::after {
   background: var(--accent-pulse);
   border-radius: 12px;
 }
-
-
-
-
-
 
 .language-loader {
   position: absolute;

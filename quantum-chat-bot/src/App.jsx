@@ -34,8 +34,12 @@ function App() {
   /* SIDEBAR STATE */
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  /* LANGUAGE STATE */
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  /* LANGUAGE STATE - Initialize from localStorage */
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    return savedLanguage || "English";
+  });
+  
   const [translatedMessages, setTranslatedMessages] = useState({});
   const [isTranslating, setIsTranslating] = useState(false);
 
@@ -43,6 +47,18 @@ function App() {
     "English", "Hindi", "Telugu", "Spanish", "French", "German",
     "Italian", "Portuguese", "Russian", "Arabic", "Japanese", "Korean"
   ];
+
+  /* Save language preference to localStorage whenever it changes */
+  useEffect(() => {
+    localStorage.setItem('preferredLanguage', selectedLanguage);
+  }, [selectedLanguage]);
+
+  /* Auto-translate messages when language is not English and messages change */
+  useEffect(() => {
+    if (selectedLanguage !== "English" && messages.length > 0) {
+      translateAllMessages(selectedLanguage, false); // Don't show loading for auto-translate
+    }
+  }, [messages]);
 
   /* THEME */
 
@@ -120,8 +136,7 @@ const loadChat = async (chat) => {
     
     setMessages(loadedMessages);
     
-    // Reset translations when loading new chat
-    setSelectedLanguage("English");
+    // Reset translations when loading new chat but keep language preference
     setTranslatedMessages({});
     
     // Close sidebar after selecting a chat
@@ -156,7 +171,6 @@ const loadChat = async (chat) => {
         shouldAnimate: true 
       }
     ]);
-    setSelectedLanguage("English");
     setTranslatedMessages({});
     setSidebarOpen(false);
   };
@@ -359,10 +373,6 @@ const loadChat = async (chat) => {
         { sender: "bot", text: reply, shouldAnimate: true }
       ]);
 
-      // Reset translations for new messages
-      setSelectedLanguage("English");
-      setTranslatedMessages({});
-
       // NO AUTO-SAVE - Don't create conversation or save messages
 
     }
@@ -416,13 +426,16 @@ const loadChat = async (chat) => {
 
 
   /* UNIVERSAL TRANSLATE - Translate all messages */
-  const translateAllMessages = async (targetLanguage) => {
-    if (targetLanguage === "English" || targetLanguage === selectedLanguage) {
+  const translateAllMessages = async (targetLanguage, showLoading = true) => {
+    if (targetLanguage === "English") {
       setSelectedLanguage(targetLanguage);
+      setTranslatedMessages({});
       return;
     }
 
-    setIsTranslating(true);
+    if (showLoading) {
+      setIsTranslating(true);
+    }
     
     // Get all unique messages that need translation
     const messagesToTranslate = messages.map((msg, index) => ({
@@ -453,7 +466,10 @@ const loadChat = async (chat) => {
 
     setTranslatedMessages(newTranslations);
     setSelectedLanguage(targetLanguage);
-    setIsTranslating(false);
+    
+    if (showLoading) {
+      setIsTranslating(false);
+    }
   };
 
 

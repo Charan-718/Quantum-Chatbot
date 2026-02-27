@@ -7,7 +7,6 @@ function Header({
   mode,
   requestModeChange,
   showContent,
-  // New props for language functionality
   selectedLanguage,
   onLanguageChange,
   isTranslating,
