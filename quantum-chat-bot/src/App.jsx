@@ -312,6 +312,28 @@ function App() {
         <SquidBot />
       </div>
 
+      {/* Minimal Floating Text */}
+      <div className="floating-essence">
+        <h4>
+          {"H!  I'm Qubot."
+            .split("")
+            .map((letter, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                {letter}
+              </span>
+            ))}
+        </h4>
+        <p>
+          {"Where algorithms meet elegance and every line of logic resonates with structured beauty."
+            .split(" ")
+            .map((word, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                {word}&nbsp;
+              </span>
+            ))}
+        </p>
+      </div>
+
       {/* Floating Cards */}
       <div className="floating-card top-right">
         <h4>Quantum Code Hub Assistant</h4>
@@ -338,10 +360,6 @@ function App() {
       />
 
       <div className={`main-content ${showContent ? "visible" : "hidden"}`}>
-
-        {/* <div className="squidbot-container">
-          <SquidBot />
-        </div> */}
         
         <Header
           theme={theme}
