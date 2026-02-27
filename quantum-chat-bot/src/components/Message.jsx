@@ -6,82 +6,76 @@ import "katex/dist/katex.min.css";
 import "./Message.css";
 
 const LANGUAGES = [
-  "English",
-  "Hindi",
-  "Spanish",
-  "French",
-  "German",
-  "Italian",
-  "Portuguese",
-  "Russian",
-  "Arabic",
-  "Japanese",
-  "Korean"
+  "English", "Hindi", "Spanish", "French", "German",
+  "Italian", "Portuguese", "Russian", "Arabic", "Japanese", "Korean"
 ];
+
+/* ─── DELIMITER NORMALISER ───────────────────────────────────
+   Converts whatever the AI sends into the $...$ / $$...$$ 
+   delimiters that remark-math understands.
+
+   Handles:
+     \[ ... \]   → $$ ... $$   (display)
+     \( ... \)   → $ ... $     (inline)
+     [ ... ]     → $$ ... $$   (display — common LLM output)
+     ( ... ) when preceded by math context  ← left as-is (too broad)
+──────────────────────────────────────────────────────────── */
+function normaliseMath(text) {
+  if (!text) return text;
+
+  return text
+    // \[ ... \]  →  $$ ... $$
+    .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, expr) => `$$\n${expr.trim()}\n$$`)
+
+    // \( ... \)  →  $ ... $
+    .replace(/\\\(\s*([\s\S]*?)\s*\\\)/g, (_, expr) => `$${expr.trim()}$`)
+
+    // Standalone [ ... ] on its own line(s) — display math
+    .replace(/(?:^|\n)\[\s*([\s\S]*?)\s*\](?=\s*(?:\n|$))/g, (_, expr) => `\n$$\n${expr.trim()}\n$$\n`);
+}
 
 function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
 
   const [displayedText, setDisplayedText] = useState(
     sender === "bot" ? (shouldAnimate ? "" : text) : text
   );
-
-  const [typingComplete, setTypingComplete] = useState(!shouldAnimate);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [typingComplete, setTypingComplete]   = useState(!shouldAnimate);
+  const [copySuccess,    setCopySuccess]       = useState(false);
+  const [showTooltip,    setShowTooltip]       = useState(false);
 
   useEffect(() => {
-    // Reset states when text changes
     setDisplayedText(sender === "bot" ? (shouldAnimate ? "" : text) : text);
     setTypingComplete(!shouldAnimate);
   }, [text, sender, shouldAnimate]);
 
   useEffect(() => {
-    // Only animate if shouldAnimate is true and sender is bot
     if (sender !== "bot" || !shouldAnimate) return;
-
     let index = 0;
-    const speed = 12;
-
     const interval = setInterval(() => {
       setDisplayedText(text.slice(0, index + 1));
       index++;
-
-      if (index >= text.length) {
-        clearInterval(interval);
-        setTypingComplete(true);
-      }
-    }, speed);
-
+      if (index >= text.length) { clearInterval(interval); setTypingComplete(true); }
+    }, 12);
     return () => clearInterval(interval);
-
   }, [text, sender, shouldAnimate]);
 
   const handleLanguageChange = (e) => {
-    const selectedLang = e.target.value;
-    if (!selectedLang) return;
-    onLanguageSelect(text, selectedLang);
-    e.target.value = ""; // reset dropdown
+    const lang = e.target.value;
+    if (!lang) return;
+    onLanguageSelect(text, lang);
+    e.target.value = "";
   };
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setShowTooltip(true);
-      
-      // Reset success state after 2 seconds
-      setTimeout(() => {
-        setCopySuccess(false);
-      }, 2000);
-      
-      // Hide tooltip after 1.5 seconds
-      setTimeout(() => {
-        setShowTooltip(false);
-      }, 1500);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
+      setCopySuccess(true); setShowTooltip(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+      setTimeout(() => setShowTooltip(false),  1500);
+    } catch (err) { console.error("Copy failed", err); }
   };
+
+  const renderedText = sender === "bot" ? normaliseMath(displayedText) : displayedText;
 
   return (
     <div className={`message ${sender}`}>
@@ -93,20 +87,14 @@ function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
       </div>
 
       <div className="message-body">
-
         {sender === "bot" ? (
           <>
             <ReactMarkdown
               remarkPlugins={[remarkMath]}
               rehypePlugins={[rehypeKatex]}
-              components={{
-                math: ({ value }) => <span className="math-inline">{value}</span>,
-                inlineMath: ({ value }) => <span className="math-inline">{value}</span>
-              }}
             >
-              {displayedText}
+              {renderedText}
             </ReactMarkdown>
-
             {!typingComplete && shouldAnimate && (
               <span className="typing-cursor">▌</span>
             )}
@@ -114,64 +102,48 @@ function Message({ sender, text, onLanguageSelect, shouldAnimate = false }) {
         ) : (
           <p>{text}</p>
         )}
-
       </div>
 
-      {/* Message Footer with Copy Button and Language Selector */}
-      {(sender === "bot" && typingComplete) && (
+      {/* Bot footer */}
+      {sender === "bot" && typingComplete && (
         <div className="message-footer">
-          
-          {/* Language Selector - Left side */}
           <div className="language-selector">
             <select onChange={handleLanguageChange}>
-              <option value="">🌐 Translate & Listen</option>
-              {LANGUAGES.map((lang, index) => (
-                <option key={index} value={lang}>
-                  {lang}
-                </option>
+              <option value="">🌐 Translate &amp; Listen</option>
+              {LANGUAGES.map((lang, i) => (
+                <option key={i} value={lang}>{lang}</option>
               ))}
             </select>
           </div>
-
-          {/* Copy Button - Right side */}
-          <div className="copy-button-container">
-            <button
-              className={`copy-button ${copySuccess ? 'success' : ''}`}
-              onClick={handleCopy}
-              title="Copy to clipboard"
-            >
-              {copySuccess ? '✓' : '📋'}
-            </button>
-            {showTooltip && (
-              <span className="copy-tooltip">
-                {copySuccess ? 'Copied!' : 'Copy'}
-              </span>
-            )}
-          </div>
-
+          <CopyBtn success={copySuccess} tooltip={showTooltip} onCopy={handleCopy} />
         </div>
       )}
 
-      {/* For user messages, only show copy button if needed */}
+      {/* User footer */}
       {sender === "user" && (
         <div className="message-footer">
-          <div className="copy-button-container">
-            <button
-              className={`copy-button ${copySuccess ? 'success' : ''}`}
-              onClick={handleCopy}
-              title="Copy to clipboard"
-            >
-              {copySuccess ? '✓' : '📋'}
-            </button>
-            {showTooltip && (
-              <span className="copy-tooltip">
-                {copySuccess ? 'Copied!' : 'Copy'}
-              </span>
-            )}
-          </div>
+          <CopyBtn success={copySuccess} tooltip={showTooltip} onCopy={handleCopy} />
         </div>
       )}
 
+    </div>
+  );
+}
+
+/* Small isolated copy button so state doesn't re-render the whole message */
+function CopyBtn({ success, tooltip, onCopy }) {
+  return (
+    <div className="copy-button-container">
+      <button
+        className={`copy-button ${success ? "success" : ""}`}
+        onClick={onCopy}
+        title="Copy to clipboard"
+      >
+        {success ? "✓" : "📋"}
+      </button>
+      {tooltip && (
+        <span className="copy-tooltip">{success ? "Copied!" : "Copy"}</span>
+      )}
     </div>
   );
 }

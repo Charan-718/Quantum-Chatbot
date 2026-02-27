@@ -444,3 +444,61 @@
 .copy-button.success {
   animation: successPulse 1s ease;
 }
+
+
+
+
+
+/* KaTeX math styling */
+.math-inline {
+  font-size: 1.1em;
+}
+
+.math-display {
+  display: block;
+  margin: 1em 0;
+  text-align: center;
+}
+
+.katex {
+  font-size: 1.1em;
+  line-height: 1.4;
+  color: var(--accent-secondary);
+}
+
+.katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+  text-align: center;
+}
+
+/* For displayed equations (with $$ $$ or \[ \]) */
+.message-body .katex-display {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1em;
+  border: 1px solid var(--border-dim);
+}
+
+/* For inline equations (with $ $ or \( \)) */
+.message-body .katex {
+  color: var(--accent-secondary);
+}
+
+/* Ensure math expressions don't break layout */
+.message-body .math-inline {
+  white-space: nowrap;
+}
+
+/* Responsive math */
+@media (max-width: 768px) {
+  .katex-display {
+    font-size: 0.9em;
+  }
+  
+  .message-body .katex-display {
+    padding: 0.75em;
+  }
+}
