@@ -85,7 +85,15 @@ function Header({
               <option key={i} value={lang}>{lang}</option>
             ))}
           </select>
-          {isTranslating && <span className="translating-spinner">⟳</span>}
+          {isTranslating && (
+            <span className="language-loader">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </span>
+          )}
         </div>
       </div>
 
