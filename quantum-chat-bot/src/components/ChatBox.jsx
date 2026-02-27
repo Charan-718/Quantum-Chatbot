@@ -1,16 +1,18 @@
 import Message from "./Message";
 import './ChatBox.css'
 
-function ChatBox({ messages, loading, onLanguageSelect }) {
+function ChatBox({ messages, loading, onLanguageSelect, translatedMessages = {}, selectedLanguage = "English" }) {
   return (
     <div className="chat-box">
       {messages.map((msg, index) => (
         <Message
           key={index}
           sender={msg.sender}
-          text={msg.text}
+          text={translatedMessages[index] || msg.text}
+          originalText={msg.text}
           onLanguageSelect={onLanguageSelect}
           shouldAnimate={msg.shouldAnimate || false}
+          selectedLanguage={selectedLanguage}
         />
       ))}
 

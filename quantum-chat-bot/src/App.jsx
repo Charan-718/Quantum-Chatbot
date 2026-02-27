@@ -34,6 +34,16 @@ function App() {
   /* SIDEBAR STATE */
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  /* LANGUAGE STATE */
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [translatedMessages, setTranslatedMessages] = useState({});
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const LANGUAGES = [
+    "English", "Hindi", "Telugu", "Spanish", "French", "German",
+    "Italian", "Portuguese", "Russian", "Arabic", "Japanese", "Korean"
+  ];
+
   /* THEME */
 
   useEffect(() => {
@@ -52,70 +62,75 @@ function App() {
   return () => clearTimeout(timer);
 }, []);
 
+
   /* LOAD CHAT - No animation for saved chats */
-  const loadChat = async (chat) => {
-    try {
-      const res =
-        await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
+const loadChat = async (chat) => {
+  try {
+    const res =
+      await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
 
-      const data = await res.json();
+    const data = await res.json();
 
-      setConversationId(data._id);
-      setMode(chat.mode);
+    setConversationId(data._id);
+    setMode(chat.mode);
+    
+    // Filter out system messages and deduplicate user messages
+    const rawMessages = data.messages || [];
+    const filteredMessages = [];
+    
+    for (let i = 0; i < rawMessages.length; i++) {
+      const currentMsg = rawMessages[i];
       
-      // Filter out system messages and deduplicate user messages
-      const rawMessages = data.messages || [];
-      const filteredMessages = [];
+      // Skip system bot messages
+      if (currentMsg.sender === "bot") {
+        // Skip welcome message
+        if (currentMsg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+          continue;
+        }
+        // Skip "New session started" message
+        if (currentMsg.text === "New session started.") {
+          continue;
+        }
+        // Add other bot messages
+        filteredMessages.push(currentMsg);
+        continue;
+      }
       
-      for (let i = 0; i < rawMessages.length; i++) {
-        const currentMsg = rawMessages[i];
+      // For user messages, check for duplicates
+      if (currentMsg.sender === 'user') {
+        // Check if this is a duplicate of the previous user message
+        const prevMsg = filteredMessages.length > 0 ? filteredMessages[filteredMessages.length - 1] : null;
         
-        // Skip system bot messages
-        if (currentMsg.sender === "bot") {
-          // Skip welcome message
-          if (currentMsg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
-            continue;
-          }
-          // Skip "New session started" message
-          if (currentMsg.text === "New session started.") {
-            continue;
-          }
-          // Add other bot messages
-          filteredMessages.push(currentMsg);
+        if (prevMsg && 
+            prevMsg.sender === 'user' && 
+            prevMsg.text === currentMsg.text) {
+          // Skip duplicate user message
           continue;
         }
         
-        // For user messages, check for duplicates
-        if (currentMsg.sender === 'user') {
-          // Check if this is a duplicate of the previous user message
-          const prevMsg = filteredMessages.length > 0 ? filteredMessages[filteredMessages.length - 1] : null;
-          
-          if (prevMsg && 
-              prevMsg.sender === 'user' && 
-              prevMsg.text === currentMsg.text) {
-            // Skip duplicate user message
-            continue;
-          }
-          
-          filteredMessages.push(currentMsg);
-        }
+        filteredMessages.push(currentMsg);
       }
-      
-      // Add shouldAnimate: false to all messages when loading from history
-      const loadedMessages = filteredMessages.map(msg => ({
-        ...msg,
-        shouldAnimate: false
-      }));
-      
-      setMessages(loadedMessages);
-      
-      // Close sidebar after selecting a chat
-      setSidebarOpen(false);
     }
-    catch {
-      console.log("Failed to load chat");
-    }
-  };
+    
+    // Add shouldAnimate: false to all messages when loading from history
+    const loadedMessages = filteredMessages.map(msg => ({
+      ...msg,
+      shouldAnimate: false
+    }));
+    
+    setMessages(loadedMessages);
+    
+    // Reset translations when loading new chat
+    setSelectedLanguage("English");
+    setTranslatedMessages({});
+    
+    // Close sidebar after selecting a chat
+    setSidebarOpen(false);
+  }
+  catch {
+    console.log("Failed to load chat");
+  }
+};
 
 
   /* START NEW CHAT - Reset to fresh session */
@@ -141,6 +156,8 @@ function App() {
         shouldAnimate: true 
       }
     ]);
+    setSelectedLanguage("English");
+    setTranslatedMessages({});
     setSidebarOpen(false);
   };
 
@@ -191,73 +208,71 @@ function App() {
 
   /* SAVE FULL CHAT - Manual save only */
 
-  /* SAVE FULL CHAT - Manual save only */
+  const saveFullConversation = async () => {
 
-const saveFullConversation = async () => {
-
-  // Don't save if conversation is empty or already saved
-  if (messages.length <= 1) {
-    alert("No messages to save");
-    return;
-  }
-
-  // If already saved, don't save again
-  if (conversationId) {
-    alert("Conversation already saved");
-    return;
-  }
-
-  const firstUser = messages.find(m => m.sender === "user");
-  if (!firstUser) {
-    alert("No user messages to save");
-    return;
-  }
-
-  const id = await startConversation(firstUser.text);
-
-  if (!id) {
-    alert("History server offline");
-    return;
-  }
-
-  // Save only user messages and their corresponding bot responses
-  // Skip system messages like welcome message and "New session started"
-  const messagesToSave = [];
-  
-  for (let i = 0; i < messages.length; i++) {
-    const msg = messages[i];
-    
-    // Skip system bot messages
-    if (msg.sender === "bot") {
-      // Skip welcome message
-      if (msg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
-        continue;
-      }
-      // Skip "New session started" message
-      if (msg.text === "New session started.") {
-        continue;
-      }
+    // Don't save if conversation is empty or already saved
+    if (messages.length <= 1) {
+      alert("No messages to save");
+      return;
     }
-    
-    // Check for duplicates: if this is a user message and the next message is also a user message with same text, skip this one
-    if (msg.sender === "user" && i < messages.length - 1) {
-      const nextMsg = messages[i + 1];
-      if (nextMsg.sender === "user" && nextMsg.text === msg.text) {
-        continue; // Skip this duplicate user message
-      }
+
+    // If already saved, don't save again
+    if (conversationId) {
+      alert("Conversation already saved");
+      return;
     }
+
+    const firstUser = messages.find(m => m.sender === "user");
+    if (!firstUser) {
+      alert("No user messages to save");
+      return;
+    }
+
+    const id = await startConversation(firstUser.text);
+
+    if (!id) {
+      alert("History server offline");
+      return;
+    }
+
+    // Save only user messages and their corresponding bot responses
+    // Skip system messages like welcome message and "New session started"
+    const messagesToSave = [];
     
-    messagesToSave.push(msg);
-  }
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      
+      // Skip system bot messages
+      if (msg.sender === "bot") {
+        // Skip welcome message
+        if (msg.text === "Hello! I'm QuBot, your quantum AI assistant. How can I help you today?") {
+          continue;
+        }
+        // Skip "New session started" message
+        if (msg.text === "New session started.") {
+          continue;
+        }
+      }
+      
+      // Check for duplicates: if this is a user message and the next message is also a user message with same text, skip this one
+      if (msg.sender === "user" && i < messages.length - 1) {
+        const nextMsg = messages[i + 1];
+        if (nextMsg.sender === "user" && nextMsg.text === msg.text) {
+          continue; // Skip this duplicate user message
+        }
+      }
+      
+      messagesToSave.push(msg);
+    }
 
-  // Save filtered messages
-  for (const msg of messagesToSave) {
-    await saveMessage(id, msg.sender, msg.text);
-  }
+    // Save filtered messages
+    for (const msg of messagesToSave) {
+      await saveMessage(id, msg.sender, msg.text);
+    }
 
-  setConversationId(id);
-  alert("Conversation saved successfully");
-};
+    setConversationId(id);
+    alert("Conversation saved successfully");
+  };
 
 
   /* MODE SWITCH */
@@ -344,6 +359,10 @@ const saveFullConversation = async () => {
         { sender: "bot", text: reply, shouldAnimate: true }
       ]);
 
+      // Reset translations for new messages
+      setSelectedLanguage("English");
+      setTranslatedMessages({});
+
       // NO AUTO-SAVE - Don't create conversation or save messages
 
     }
@@ -393,6 +412,48 @@ const saveFullConversation = async () => {
     }
 
     setModalLoading(false);
+  };
+
+
+  /* UNIVERSAL TRANSLATE - Translate all messages */
+  const translateAllMessages = async (targetLanguage) => {
+    if (targetLanguage === "English" || targetLanguage === selectedLanguage) {
+      setSelectedLanguage(targetLanguage);
+      return;
+    }
+
+    setIsTranslating(true);
+    
+    // Get all unique messages that need translation
+    const messagesToTranslate = messages.map((msg, index) => ({
+      index,
+      text: msg.text
+    }));
+
+    const newTranslations = {};
+
+    for (const { index, text } of messagesToTranslate) {
+      try {
+        const res = await fetch("http://localhost:5500/translate-audio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            text, 
+            language: targetLanguage,
+            audio: false // Don't need audio for bulk translation
+          })
+        });
+
+        const data = await res.json();
+        newTranslations[index] = data.translatedText || text;
+      } catch {
+        newTranslations[index] = text; // Fallback to original text
+      }
+    }
+
+    setTranslatedMessages(newTranslations);
+    setSelectedLanguage(targetLanguage);
+    setIsTranslating(false);
   };
 
 
@@ -449,7 +510,7 @@ const saveFullConversation = async () => {
 
       <Sidebar 
         onSelectChat={loadChat} 
-        onNewChat={startNewChat}  // Add this prop
+        onNewChat={startNewChat}
         isOpen={sidebarOpen}
         onToggle={setSidebarOpen}
       />
@@ -462,6 +523,10 @@ const saveFullConversation = async () => {
           mode={mode}
           requestModeChange={requestModeChange}
           showContent={showContent}
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={translateAllMessages}
+          isTranslating={isTranslating}
+          languages={LANGUAGES}
         />
 
         {messages.length > 1 && !conversationId && (
@@ -479,13 +544,16 @@ const saveFullConversation = async () => {
           </div>
         )}
 
+        <InputBox onSend={sendQuestion} />
+
         <ChatBox
           messages={messages}
           loading={loading}
           onLanguageSelect={handleLanguageSelect}
+          translatedMessages={translatedMessages}
+          selectedLanguage={selectedLanguage}
         />
 
-        <InputBox onSend={sendQuestion} />
       </div>
 
       {modalData && (
