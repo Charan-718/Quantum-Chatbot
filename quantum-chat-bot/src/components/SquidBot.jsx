@@ -61,11 +61,18 @@ const SquidBot = () => {
 
     let isDragging = false;
     let lastInteractionTime = 0;
+    const INACTIVITY_RESET_DELAY = 2000; // 2 seconds
 
     // Animation states
     let animationPhase = 0; // 0: top-right, 1: bottom-left, 2: return to neutral, 3: rotate 360, 4: completed
     let phaseStartTime = 0;
     let animationCompleted = false;
+    
+    // Auto-reset state
+    let isResetting = false;
+    let resetStartRotation = { x: 0, y: 0, z: 0 };
+    let resetStartTime = 0;
+    const RESET_DURATION = 1.0; // 1 second for reset animation
     
     // Camera target position after completion
     const initialCameraPos = new THREE.Vector3(0, 2, 4);
@@ -85,6 +92,9 @@ const SquidBot = () => {
     };
 
     const initialRotation = new THREE.Euler(0, 0, 0);
+
+    // Store the last user-controlled rotation
+    let userControlledRotation = { x: 0, y: 0, z: 0 };
 
     loader.load("/squid_bot.glb", (gltf) => {
       model = gltf.scene;
@@ -117,16 +127,51 @@ const SquidBot = () => {
         x: event.clientX,
         y: event.clientY,
       };
+      
+      // If animation is completed, disable it for user control
+      if (animationCompleted) {
+        // Store the current rotation as the starting point for user control
+        if (model) {
+          userControlledRotation.x = model.rotation.x;
+          userControlledRotation.y = model.rotation.y;
+          userControlledRotation.z = model.rotation.z;
+        }
+        // Cancel any ongoing reset
+        isResetting = false;
+      }
+      
+      lastInteractionTime = clock.getElapsedTime();
     };
 
     const onMouseMove = (event) => {
-      if (!isDragging || !model || animationCompleted) return;
+      if (!isDragging || !model) return;
 
       const deltaX = event.clientX - previousMousePosition.x;
       const deltaY = event.clientY - previousMousePosition.y;
 
-      model.rotation.y += deltaX * 0.005;
-      model.rotation.x += deltaY * 0.005;
+      if (animationCompleted) {
+        // User control mode - update from current rotation
+        model.rotation.y += deltaX * 0.005;
+        model.rotation.x += deltaY * 0.005;
+        
+        // Clamp x rotation to prevent flipping
+        model.rotation.x = Math.max(-Math.PI/3, Math.min(Math.PI/3, model.rotation.x));
+        
+        // Update stored rotation
+        userControlledRotation.x = model.rotation.x;
+        userControlledRotation.y = model.rotation.y;
+        userControlledRotation.z = model.rotation.z;
+        
+        // Cancel any ongoing reset
+        isResetting = false;
+      } else {
+        // During animation, still allow some control but don't store it
+        model.rotation.y += deltaX * 0.005;
+        model.rotation.x += deltaY * 0.005;
+        
+        // Clamp x rotation
+        model.rotation.x = Math.max(-Math.PI/3, Math.min(Math.PI/3, model.rotation.x));
+      }
 
       previousMousePosition = {
         x: event.clientX,
@@ -138,6 +183,7 @@ const SquidBot = () => {
 
     const onMouseUp = () => {
       isDragging = false;
+      lastInteractionTime = clock.getElapsedTime();
     };
 
     window.addEventListener("mousedown", onMouseDown);
@@ -244,6 +290,12 @@ const SquidBot = () => {
               animationPhase = 4;
               animationCompleted = true;
               model.rotation.y = 0; // Reset to facing forward
+              // Store the neutral rotation for user control
+              userControlledRotation.x = model.rotation.x;
+              userControlledRotation.y = model.rotation.y;
+              userControlledRotation.z = model.rotation.z;
+              lastInteractionTime = time; // Initialize last interaction time
+              console.log("Animation completed, reset timer started"); // Debug
             }
           }
         }
@@ -253,19 +305,76 @@ const SquidBot = () => {
           cameraMoveStarted = true;
         }
         
-        if (animationCompleted) {
+        if (animationCompleted && cameraMoveStarted) {
           // Smoothly interpolate camera position
-          camera.position.lerpVectors(initialCameraPos, finalCameraPos, 0.02); // Adjust speed via factor
+          camera.position.lerpVectors(initialCameraPos, finalCameraPos, 0.02);
+        }
+
+        // Check for inactivity reset after animation completes
+        if (animationCompleted && !isDragging && !isResetting) {
+          const timeSinceLastInteraction = time - lastInteractionTime;
+          
+          // Debug log every second to see if timer is working
+          if (Math.floor(time) % 1 === 0) {
+            console.log(`Time since last interaction: ${timeSinceLastInteraction.toFixed(2)}s`);
+          }
+          
+          if (timeSinceLastInteraction > INACTIVITY_RESET_DELAY / 1000) {
+            console.log("Starting reset animation"); // Debug
+            // Start reset animation
+            isResetting = true;
+            resetStartRotation = {
+              x: model.rotation.x,
+              y: model.rotation.y,
+              z: model.rotation.z
+            };
+            resetStartTime = time;
+          }
+        }
+
+        // Handle reset animation
+        if (isResetting) {
+          const resetProgress = Math.min((time - resetStartTime) / RESET_DURATION, 1);
+          const easeProgress = 1 - Math.pow(1 - resetProgress, 3); // Cubic ease-out
+          
+          model.rotation.x = THREE.MathUtils.lerp(
+            resetStartRotation.x,
+            targetRotations.neutral.x,
+            easeProgress
+          );
+          model.rotation.y = THREE.MathUtils.lerp(
+            resetStartRotation.y,
+            targetRotations.neutral.y,
+            easeProgress
+          );
+          model.rotation.z = THREE.MathUtils.lerp(
+            resetStartRotation.z,
+            targetRotations.neutral.z,
+            easeProgress
+          );
+          
+          if (resetProgress >= 1) {
+            console.log("Reset animation complete"); // Debug
+            isResetting = false;
+            // Update stored rotation to neutral
+            userControlledRotation.x = targetRotations.neutral.x;
+            userControlledRotation.y = targetRotations.neutral.y;
+            userControlledRotation.z = targetRotations.neutral.z;
+            lastInteractionTime = time; // Reset timer after completion
+          }
         }
 
         // Always apply floating motion (subtle up/down) while staying centered
         const floatOffset = Math.sin(time * 3) * 0.05;
         model.position.y = 1.5 + floatOffset;
         
-        // Slight scale pulse for extra life (only if animation completed)
-        if (animationCompleted) {
+        // Slight scale pulse for extra life (only if animation completed AND not being dragged AND not resetting)
+        if (animationCompleted && !isDragging && !isResetting) {
           const pulseScale = 1 + Math.sin(time * 4) * 0.02;
           model.scale.set(pulseScale, pulseScale, pulseScale);
+        } else {
+          // When dragging or resetting, keep scale normal
+          model.scale.set(1, 1, 1);
         }
       }
 
