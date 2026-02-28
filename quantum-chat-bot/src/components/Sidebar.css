@@ -6,7 +6,7 @@
 /* ─── OPEN TRIGGER BUTTON ───────────────────────────────── */
 .sidebar-open {
   position: fixed;
-  top: 5%;
+  top: 136px;
   right: 15px;
   transform: translateY(-50%);
   z-index: 200;
