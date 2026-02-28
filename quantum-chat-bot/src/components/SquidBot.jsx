@@ -15,7 +15,6 @@ const SquidBot = () => {
     const height = currentMount.clientHeight;
 
     const scene = new THREE.Scene();
-    // scene.background = new THREE.Color(0x111111); // Black Background
 
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -64,7 +63,7 @@ const SquidBot = () => {
     const INACTIVITY_RESET_DELAY = 2000; // 2 seconds
 
     // Animation states
-    let animationPhase = 0; // 0: top-right, 1: bottom-left, 2: return to neutral, 3: rotate 360, 4: completed
+    let animationPhase = 0; // 0: top-right, 1: bottom-left, 2: return to neutral, 3: rotate 360+, 4: completed
     let phaseStartTime = 0;
     let animationCompleted = false;
     
@@ -90,6 +89,9 @@ const SquidBot = () => {
       topRight: { x: -0.5, y: 0.8, z: 0.2 },    // Look up and right
       bottomLeft: { x: 0.5, y: -0.8, z: -0.2 }   // Look down and left
     };
+
+    // Store the final rotation after animation completes
+    let finalRotation = { x: 0, y: 0, z: 0 };
 
     const initialRotation = new THREE.Euler(0, 0, 0);
 
@@ -276,26 +278,36 @@ const SquidBot = () => {
               phaseStartTime = time;
             }
           }
-          else if (animationPhase === 3) { // Rotate 360 degrees in place (3 seconds)
+          else if (animationPhase === 3) { // Rotate more than 360 degrees (3 seconds)
             const progress = Math.min(timeInPhase / 3, 1);
             
             // Stay in neutral position while rotating
             model.rotation.x = targetRotations.neutral.x;
             model.rotation.z = targetRotations.neutral.z;
             
-            // Full 360 rotation around Y axis
-            model.rotation.y = progress * Math.PI * 2;
+            // Spin more than 360° - exactly 2.2π (~396°)
+            const totalSpin = Math.PI * 2.2;
+            const currentSpin = progress * totalSpin;
+            model.rotation.y = currentSpin;
             
             if (progress >= 1) {
               animationPhase = 4;
               animationCompleted = true;
-              model.rotation.y = 0; // Reset to facing forward
-              // Store the neutral rotation for user control
-              userControlledRotation.x = model.rotation.x;
-              userControlledRotation.y = model.rotation.y;
-              userControlledRotation.z = model.rotation.z;
-              lastInteractionTime = time; // Initialize last interaction time
-              console.log("Animation completed, reset timer started"); // Debug
+              
+              // Store the final rotation (where it ends after the spin)
+              finalRotation = {
+                x: model.rotation.x,
+                y: model.rotation.y,
+                z: model.rotation.z
+              };
+              
+              // Update user controlled rotation to match final position
+              userControlledRotation.x = finalRotation.x;
+              userControlledRotation.y = finalRotation.y;
+              userControlledRotation.z = finalRotation.z;
+              
+              lastInteractionTime = time;
+              console.log("Animation completed at rotation:", finalRotation.y, "radians");
             }
           }
         }
@@ -314,14 +326,9 @@ const SquidBot = () => {
         if (animationCompleted && !isDragging && !isResetting) {
           const timeSinceLastInteraction = time - lastInteractionTime;
           
-          // Debug log every second to see if timer is working
-          if (Math.floor(time) % 1 === 0) {
-            console.log(`Time since last interaction: ${timeSinceLastInteraction.toFixed(2)}s`);
-          }
-          
           if (timeSinceLastInteraction > INACTIVITY_RESET_DELAY / 1000) {
-            console.log("Starting reset animation"); // Debug
-            // Start reset animation
+            console.log("Starting reset animation to final position");
+            // Start reset animation - but NOT to neutral, to the final spin position
             isResetting = true;
             resetStartRotation = {
               x: model.rotation.x,
@@ -332,34 +339,34 @@ const SquidBot = () => {
           }
         }
 
-        // Handle reset animation
+        // Handle reset animation - returns to final spin position, not neutral
         if (isResetting) {
           const resetProgress = Math.min((time - resetStartTime) / RESET_DURATION, 1);
           const easeProgress = 1 - Math.pow(1 - resetProgress, 3); // Cubic ease-out
           
           model.rotation.x = THREE.MathUtils.lerp(
             resetStartRotation.x,
-            targetRotations.neutral.x,
+            finalRotation.x,
             easeProgress
           );
           model.rotation.y = THREE.MathUtils.lerp(
             resetStartRotation.y,
-            targetRotations.neutral.y,
+            finalRotation.y,
             easeProgress
           );
           model.rotation.z = THREE.MathUtils.lerp(
             resetStartRotation.z,
-            targetRotations.neutral.z,
+            finalRotation.z,
             easeProgress
           );
           
           if (resetProgress >= 1) {
-            console.log("Reset animation complete"); // Debug
+            console.log("Reset animation complete - back to final position");
             isResetting = false;
-            // Update stored rotation to neutral
-            userControlledRotation.x = targetRotations.neutral.x;
-            userControlledRotation.y = targetRotations.neutral.y;
-            userControlledRotation.z = targetRotations.neutral.z;
+            // Update stored rotation to final position
+            userControlledRotation.x = finalRotation.x;
+            userControlledRotation.y = finalRotation.y;
+            userControlledRotation.z = finalRotation.z;
             lastInteractionTime = time; // Reset timer after completion
           }
         }
