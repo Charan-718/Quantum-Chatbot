@@ -136,12 +136,12 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
             Chat
           </button>
 
-          {/* <button
+          <button
             className={mode === "research" ? "active" : ""}
             onClick={() => setMode("research")}
           >
             Research
-          </button> */}
+          </button>
 
         </div>
 
