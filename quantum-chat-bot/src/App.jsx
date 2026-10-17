@@ -59,6 +59,7 @@ function App() {
     if (selectedLanguage !== "English" && messages.length > 0) {
       translateAllMessages(selectedLanguage, false); // Don't show loading for auto-translate
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   /* THEME */
