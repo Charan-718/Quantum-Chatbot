@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import ConfirmModal from "./components/ConfirmModal";
 import SquidBot from "./components/SquidBot";
+import { HISTORY_API_URL, TRANSLATE_API_URL, AI_API_URL } from "./config";
 import "./App.css";
 
 function App() {
@@ -83,7 +84,7 @@ function App() {
 const loadChat = async (chat) => {
   try {
     const res =
-      await fetch(`http://localhost:5000/history/${chat.mode}/${chat._id}`);
+      await fetch(`${HISTORY_API_URL}/history/${chat.mode}/${chat._id}`);
 
     const data = await res.json();
 
@@ -181,7 +182,7 @@ const loadChat = async (chat) => {
   const startConversation = async (firstMessage) => {
     try {
       const res =
-        await fetch("http://localhost:5000/history/start", {
+        await fetch(`${HISTORY_API_URL}/history/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ firstMessage, mode })
@@ -206,7 +207,7 @@ const loadChat = async (chat) => {
 
     try {
       await fetch(
-        `http://localhost:5000/history/${mode}/${id}/message`,
+        `${HISTORY_API_URL}/history/${mode}/${id}/message`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -345,8 +346,8 @@ const loadChat = async (chat) => {
 
       const endpoint =
         mode === "chat"
-          ? "http://127.0.0.1:8000/api/chat/message"
-          : "http://127.0.0.1:8000/api/research/message";
+          ? `${AI_API_URL}/api/chat/message`
+          : `${AI_API_URL}/api/research/message`;
 
       const res =
         await fetch(endpoint, {
@@ -402,7 +403,7 @@ const loadChat = async (chat) => {
 
       const res =
         await fetch(
-          "http://localhost:5500/translate-audio",
+          `${TRANSLATE_API_URL}/translate-audio`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -447,7 +448,7 @@ const loadChat = async (chat) => {
 
     for (const { index, text } of messagesToTranslate) {
       try {
-        const res = await fetch("http://localhost:5500/translate-audio", {
+        const res = await fetch(`${TRANSLATE_API_URL}/translate-audio`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 

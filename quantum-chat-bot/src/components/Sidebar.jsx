@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { HISTORY_API_URL } from "../config";
 import "./Sidebar.css";
 
 function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
@@ -16,7 +17,7 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
 
       const res =
         await fetch(
-          `http://localhost:5000/history/${selectedMode}`
+          `${HISTORY_API_URL}/history/${selectedMode}`
         );
 
       if (!res.ok) return;
@@ -58,7 +59,7 @@ function Sidebar({ onSelectChat, onNewChat, isOpen, onToggle }) {
     try {
 
       await fetch(
-        `http://localhost:5000/history/${mode}/${id}`,
+        `${HISTORY_API_URL}/history/${mode}/${id}`,
         {
           method: "DELETE"
         }

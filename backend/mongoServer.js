@@ -247,7 +247,9 @@ app.delete("/history/:mode/:id", async(req,res)=>{
 });
 
 
-app.listen(5000,()=>{
+const PORT = process.env.MONGO_PORT || 5000;
+
+app.listen(PORT,()=>{
 
   console.log(
     "🚀 Mongo history server running"
